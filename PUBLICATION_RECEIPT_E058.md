@@ -73,3 +73,10 @@ The original mathematical proof is credited to Robert Sneiderman. This
 project's contribution is independent formal and certificate verification.
 Material OpenAI Codex assistance is disclosed in `AI_USAGE.md` and in the
 preprint; AI-generated assertions are not treated as mathematical evidence.
+
+Anthropic's Claude (via Claude Code) also performed a consistency review and
+produced a wording-only revision in the private verification lineage after the
+release staging snapshot was frozen. Those revised paper bytes are not part
+of tag `e058-r5` or its assets. The published hashes therefore remain correct;
+Claude's statements are likewise not mathematical evidence or independent
+human review.

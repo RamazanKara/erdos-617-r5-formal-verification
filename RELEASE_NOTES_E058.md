@@ -72,6 +72,13 @@ published; he assumes responsibility for any
 approved release. See `AI_USAGE.md` and the preprint's dedicated disclosure
 section.
 
+Anthropic's Claude (via Claude Code) separately reviewed the private preprint
+against repository records, produced a wording-only private follow-up
+revision, and drafted announcement text. That revision occurred after the
+release staging snapshot was frozen and is not present in tag `e058-r5` or
+its assets; the published hashes remain correct. Claude's statements are not
+mathematical evidence or independent human review.
+
 ### Publication path redactions
 
 The public snapshot mechanically removes personal host-path prefixes from 716

@@ -24,4 +24,14 @@ The internal adversarial report in `docs/e058-red-team-audit.md` was also
 produced with Codex assistance. It is a release-engineering and consistency
 check, not a substitute for a qualified independent human review.
 
+A second AI system, Anthropic's Claude (via Claude Code), performed a
+consistency review of the preprint against the repository records on
+2026-07-24, applied a wording-only prose revision to `paper/main.tex` and
+`paper/references.bib`, and drafted public announcement texts. This is
+likewise not independent human review, and Claude's statements are not
+evidence for any mathematical claim. The `e058-r5` tag and release assets
+were built from the earlier frozen publication snapshot and do not contain
+the later revised paper bytes; the release's published source/PDF hashes
+remain the correct hashes for that immutable snapshot.
+
 The all-\(r\) Erdős Problem 617 conjecture remains open.
