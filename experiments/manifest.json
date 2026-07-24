@@ -1,0 +1,1508 @@
+{
+  "created_at": "2026-07-20T18:10:21+02:00",
+  "updated_at": "2026-07-24T15:38:12+02:00",
+  "environment": {
+    "architecture": "x86_64, 64-bit",
+    "c_compiler": "GCC 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04.1)",
+    "coreutils": "9.4",
+    "git": "2.43.0",
+    "kernel": "Linux 6.18.33.2-microsoft-standard-WSL2",
+    "python": "CPython 3.12.3",
+    "third_party_python_packages_for_verification": [],
+    "third_party_python_packages_for_optional_certificate_reproduction": [
+      "python-sat 1.9.dev7"
+    ]
+  },
+  "experiments": [
+    {
+      "artifacts": [
+        {
+          "path": "artifacts/affine25.col",
+          "sha256": "05d15bb71af3788b17c172bcdf794aa528e9f4c753904056949a616ad2dac43a"
+        }
+      ],
+      "commands": [
+        "python3 src/generate_affine25.py artifacts/affine25.col",
+        "python3 src/check_coloring.py artifacts/affine25.col --expect-n 25 --expect-r 5 --expect-k 6",
+        "build/check_coloring_c artifacts/affine25.col 25 5 6"
+      ],
+      "expected_outputs_and_falsification": "Both independent checkers must report VALID and exactly 177100 subsets; any missing color witness or checker disagreement falsifies the claim.",
+      "id": "E001-AFFINE25-SEMANTICS",
+      "input_space": "The single deterministic AG(2,5) coloring produced by mapping four slopes to colors 0..3 and merging the last slope with the vertical direction into color 4.",
+      "mathematical_question": "Does the standard affine construction give a balanced five-coloring of K25 under the exact six-set semantics?",
+      "resource_cap": "One complete pass over C(25,6) by each checker; target wall time below 60 seconds per checker and memory below 256 MiB.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Deterministic regeneration, strict format/scope validation, exhaustive enumeration by independent Python and C algorithms, artifact hash, and bad-input tests.",
+      "why_high_information": "It validates the semantic pipeline against the known sharp n=r^2 construction and provides the natural one-vertex extension target without restricting any future K26 checker."
+    },
+    {
+      "artifacts": [
+        {
+          "path": "artifacts/affine_nonextension.json",
+          "sha256": "81ddd52a353ea1c5fd6515256d741eb8e52ab4dab360fb8d0bd0ef6ab3ac6aac"
+        }
+      ],
+      "commands": [
+        "python3 src/verify_affine_nonextension.py artifacts/affine25.col"
+      ],
+      "expected_outputs_and_falsification": "Colors 0 and 1 must each be exactly five disjoint K5 line blocks and every cross-block intersection must have size one; failure of a premise or an explicit extension falsifies the result.",
+      "id": "E002-AFFINE25-NONEXTENSION",
+      "input_space": "The exact labeled artifact from E001; all 25 possible cross intersections of the slope-0 and slope-1 line partitions.",
+      "mathematical_question": "Can the canonical affine K25 coloring be extended by one new vertex?",
+      "resource_cap": "At most 300 edge-premise checks and 25 set intersections; target wall time below 5 seconds.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Human transversal-hitting proof plus a deterministic checker for every finite structural premise and content hashes.",
+      "why_high_information": "A positive extension would resolve r=5 negatively; the short negative proof identifies an exact obstruction without relying on search failure or SAT."
+    },
+    {
+      "artifacts": [
+        {
+          "path": "artifacts/triangle_bound.json",
+          "sha256": "bf739b59eda70c522274611b35d9ca464c6a14e1ca4faa6a0b594f95f381a4e4"
+        }
+      ],
+      "commands": [
+        "python3 src/verify_triangle_bound.py"
+      ],
+      "expected_outputs_and_falsification": "The 23751 ordered degree profiles must have elementary minimum 200, unique minimizer (5,5,5,5,5), next value 201, strengthened minimum 204 with one ordered minimizer, next strengthened value 205 with 20 orderings of (4,5,5,5,6), and following value 206 with 50 orderings of two types; any discrepancy falsifies the arithmetic component.",
+      "id": "E003-LOCAL-TURAN-TRIANGLE",
+      "input_space": "Every ordered five-tuple of nonnegative color degrees summing to 25, with exact integer Turan numbers t4(m).",
+      "mathematical_question": "What local color-edge count is forced at every vertex of any unrestricted balanced K26 coloring?",
+      "resource_cap": "Exactly C(29,4)=23751 profiles; target wall time below 10 seconds and memory below 64 MiB.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Human Turan and triangle double-counting proof, exhaustive independent arithmetic audit, deterministic JSON output, and hash.",
+      "why_high_information": "The result is unrestricted and couples all five color classes through the degree sum and global triangle types."
+    },
+    {
+      "artifacts": [],
+      "commands": [
+        "python3 tests/test_pipeline.py --python-checker src/check_coloring.py --c-checker build/check_coloring_c --generator src/generate_affine25.py --artifact artifacts/affine25.col"
+      ],
+      "expected_outputs_and_falsification": "Valid regenerated input is accepted twice; monochromatic input is semantically rejected twice; duplicate-edge, flattened-record, and weakened-scope inputs are format rejected twice each.",
+      "id": "E004-ADVERSARIAL-CHECKER-TESTS",
+      "input_space": "One valid artifact and four deterministic corruptions, exercised against two checkers (ten outcomes).",
+      "mathematical_question": "Do both semantic checkers reject known bad, malformed, and scope-shifted artifacts?",
+      "resource_cap": "Ten bounded checker invocations; target wall time below 60 seconds total.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Temporary regeneration and exact exit-code/output assertions.",
+      "why_high_information": "These tests probe omission, parser, scope, and false-positive failure modes in the current trust boundary."
+    },
+    {
+      "artifacts": [
+        {
+          "clauses": 18630,
+          "path": "artifacts/local_equality.cnf",
+          "sha256": "5d07eba75a940fc84632fccb79abbf05caa56a786d245f40d814188926b6b22b",
+          "variables": 400
+        },
+        {
+          "bytes": 10879227,
+          "lines": 58710,
+          "path": "certificates/local_equality.lrat",
+          "sha256": "0e29cf03c74f1a47e90dad423bfe851c399a6d718a431cf00ebbc4372e4f033c"
+        }
+      ],
+      "certificate_generation": {
+        "converter": "drat-trim -U at commit 2e5e29cb0019d5cfd547d4208dca1b3ec290349f",
+        "drup_intermediate_lines": 86502,
+        "drup_intermediate_sha256": "f8db948c6b2e373fa45e421515a993f47e650b9b0bad956dc0d3b00faa125822",
+        "lrat_core_additions": 38871,
+        "rat_lemmas": 0,
+        "solver": "Glucose3 through python-sat 1.9.dev7",
+        "two_complete_generations_byte_identical": true
+      },
+      "commands": [
+        "python3 src/generate_local_equality_cnf.py artifacts/local_equality.cnf",
+        "python3 repro/generate_local_equality_drup.py build/local_equality.drup",
+        "build/drat-trim-upstream artifacts/local_equality.cnf build/local_equality.drup -U -L build/local_equality.lrat",
+        "cmp build/local_equality.lrat certificates/local_equality.lrat",
+        "build/lrat-check-upstream artifacts/local_equality.cnf certificates/local_equality.lrat",
+        "python3 src/check_lrat.py artifacts/local_equality.cnf certificates/local_equality.lrat",
+        "python3 tests/test_lrat.py --cnf artifacts/local_equality.cnf --proof certificates/local_equality.lrat --c-checker build/lrat-check-upstream --python-checker src/check_lrat.py"
+      ],
+      "expected_outputs_and_falsification": "Both independent LRAT checkers must derive the empty clause; the Python checker must report 18630 originals and 38871 additions; both must reject truncated and forged-empty proofs. A satisfying design, bridge or symmetry error, rejection of the committed proof, acceptance of a corruption, or hash mismatch falsifies the claim.",
+      "id": "E005-LOCAL-EQUALITY-CERTIFICATE",
+      "input_space": "All five local Turan-equality resolutions on 25 points after a proved complete relabeling of resolution 0: 20 labeled blocks B[c,d], exact (2,1,1,1) group composition, partitions, cross-resolution intersection at most one, and reciprocal disjointness.",
+      "mathematical_question": "Can the necessary local incidence systems forced by L(v)=200 coexist?",
+      "resource_cap": "Predeclared cap five minutes wall time and 2 GiB RAM; no model enlargement. Generation, conversion, and verification stayed within the cap.",
+      "result": "UNSAT for the stated necessary local incidence system; excludes L(v)=200 but does not decide the full K26 coloring instance.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Human equality-to-block and symmetry proofs; deterministic exact CNF; RUP-only LRAT; pinned upstream C checker; independent Python checker; content hashes; two corrupted-certificate tests per checker.",
+      "why_high_information": "This closes the highest-ranked unrestricted local equality obligation and raises the forced local count from 200 to 201 without relying on solver agreement or a restricted coloring family."
+    },
+    {
+      "artifacts": [
+        {"path": "artifacts/local_204/b4456_a1.cnf", "sha256": "f3e117b2d9e47343acf43c6c89932dc706240cd02796dda8e2fc09635f4bc590", "variables": 6524, "clauses": 52915},
+        {"path": "artifacts/local_204/b4456_a2.cnf", "sha256": "f0b97bf35c01dde32fdb21bdf467b2e3e18376700c2bd0dd35b0e31cf5038ef7", "variables": 6524, "clauses": 52915},
+        {"path": "artifacts/local_204/b4555_small_a1.cnf", "sha256": "2b836da6093b3362ecfea005693e2224681aea5f97000d757a821c1e8bb38615", "variables": 6524, "clauses": 52915},
+        {"path": "artifacts/local_204/b4555_small_a2.cnf", "sha256": "42668105c8ada2182da6edeccec1430feaf7fd66414e5715c2973806d2a78212", "variables": 6524, "clauses": 52915},
+        {"path": "artifacts/local_204/b4555_large_a1.cnf", "sha256": "41d45ffb252eba6ca9967c686246043a13f65c98fb90de08d4e80a6e7768a403", "variables": 6524, "clauses": 52915},
+        {"path": "artifacts/local_204/b4555_large_a2.cnf", "sha256": "90bba1d2c13b13cbaadd763c5e578d77bfc62d130d10360688c6fca2a8314001", "variables": 6524, "clauses": 52915},
+        {"path": "artifacts/local_204/u4455_a1.cnf", "sha256": "a1aae80ee08a1eee03030117778961404353a3c3b1c0e9e9b6b537e4f12e2695", "variables": 3277, "clauses": 42062},
+        {"path": "artifacts/local_204/u4455_a2.cnf", "sha256": "56e06eb99b22a12ae27a2e76d0ace60501cd9345698f053bfe39ff813a123da5", "variables": 3277, "clauses": 42062},
+        {"path": "certificates/local_204/b4456_a1.lrat.xz", "sha256": "b9302940f1cd5225fe3ea4d5d9ca20ede8d3a7da6e05575a18155ffc7d8f0fab", "bytes": 20124, "raw_bytes": 347281, "raw_sha256": "0ea570c3dee4affc24b2673f00ca3086e818e421157d08426e1da1c2dc05e0f9"},
+        {"path": "certificates/local_204/b4456_a2.lrat.xz", "sha256": "34eb8334aeb7d9c176a52e24163e37cb47aa85830c1f5effd0de84cab86dfb55", "bytes": 24628, "raw_bytes": 358255, "raw_sha256": "aa504070b82180b1cc565b3e027c76b0705eeed7b4b75f9759d906b46d5e3112"},
+        {"path": "certificates/local_204/b4555_small_a1.lrat.xz", "sha256": "3c63d82284fedc045eaf7eb0ae7ce0fca60b8b037c6cf5f16d7edfabcd5ec078", "bytes": 89280, "raw_bytes": 596047, "raw_sha256": "b4fd93943216a90c4a72108f2950cce671db2ddd99776a6275ca1c1d16795e8c"},
+        {"path": "certificates/local_204/b4555_small_a2.lrat.xz", "sha256": "89e6e17cee5d1b920752b455ea08afa4f4ec23cbdf20ec8ef7155a8c0394e86e", "bytes": 86496, "raw_bytes": 590718, "raw_sha256": "60023be8aa116b80ccc1a9e8e97afa9459eca0be1c7f41d2bfba589015890350"},
+        {"path": "certificates/local_204/b4555_large_a1.lrat.xz", "sha256": "3c63d82284fedc045eaf7eb0ae7ce0fca60b8b037c6cf5f16d7edfabcd5ec078", "bytes": 89280, "raw_bytes": 596047, "raw_sha256": "b4fd93943216a90c4a72108f2950cce671db2ddd99776a6275ca1c1d16795e8c"},
+        {"path": "certificates/local_204/b4555_large_a2.lrat.xz", "sha256": "4195a1edaecef5044097e52ef856937db176420e036058c931873e5178cbdbd7", "bytes": 66355956, "raw_bytes": 283044977, "raw_sha256": "4d5bae9d3941d96808f2301ebab0e3c11d9be68cd28aefead2d8ccc2b18c0076"},
+        {"path": "certificates/local_204/u4455_a1.lrat.xz", "sha256": "8e4a8cb662ddbb254766db756967ee3db3e18c34ab53458014dde80b80aa07ee", "bytes": 5541712, "raw_bytes": 28013822, "raw_sha256": "090b534170ad4443c064834f78968c2b7eb6d924807c6a88f726c571c63b944a"},
+        {"path": "certificates/local_204/u4455_a2.lrat.xz", "sha256": "f97173d65ad204342366830ae9c21511037283082a373c9625eace196f3b6c58", "bytes": 6087144, "raw_bytes": 31473425, "raw_sha256": "2cc8ddb5fab71012670606986c6af8ff0f2194d35e065de1707f1249c095cebf"}
+      ],
+      "certificate_generation": {
+        "solver": "official CaDiCaL rel-1.9.5 at commit 146207318796f094dcded87349a64f0c6927309e",
+        "solver_command": "cadical -t 300 --no-binary INPUT.cnf OUTPUT.drat",
+        "converter": "drat-trim -U -L at commit 2e5e29cb0019d5cfd547d4208dca1b3ec290349f",
+        "rat_lemmas_in_every_core": 0,
+        "compression": "Python standard-library lzma, XZ format, preset 6"
+      },
+      "commands": [
+        "python3 tests/test_local_204_generator.py",
+        "python3 tests/verify_local_204_certificates.py --cnf-directory artifacts/local_204 --proof-directory certificates/local_204 --c-checker build/lrat-check-upstream --python-checker src/check_lrat.py",
+        "python3 repro/generate_local_204_certificates.py --cadical /path/to/cadical-1.9.5 --drat-trim build/drat-trim-upstream"
+      ],
+      "expected_outputs_and_falsification": "The independent catalog test must recover exactly eight representatives and all CNFs byte-for-byte. Both LRAT checkers must validate every proof against its own CNF and reject deliberate corruptions. An omitted extremal type, unsafe symmetry break, satisfying assignment, checker disagreement, corruption acceptance, or hash mismatch falsifies the result.",
+      "id": "E006-LOCAL-204-CERTIFICATES",
+      "input_space": "The six balanced representatives of the unique degree profile attaining the corrected strengthened local lower bound 204, plus two order-19 representatives retained from the former weaker arithmetic catalog; every Kang--Pikhurko extremal part vector, nonisomorphic source/target orientation, and subset size modulo the proved a versus |source|-a isomorphism; unrestricted spoke assignments; exact blocks for every Turan-tight color.",
+      "mathematical_question": "Can the necessary local compatibility structure forced by L(v)=204 occur in an unrestricted balanced five-coloring of K26?",
+      "resource_cap": "Predeclared five minutes wall time and 2 GiB RAM per representative. Every solver and conversion run completed inside the cap.",
+      "result": "UNSAT for all eight necessary local incidence systems; together with the proved complete bridge, excludes L(v)=204 and establishes L(v)>=205, but does not decide the full K26 coloring instance.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Human profile/extremal/encoding/symmetry proof; independently reconstructed catalog; deterministic CNFs; small exhaustive encoding tests; RUP-only LRAT; two independent checkers; adversarial corruptions; compressed and raw hashes.",
+      "why_high_information": "This closes every equality branch at the previous unrestricted local frontier and raises the bound to 205 without trusting solver search or restricting the global coloring family."
+    },
+    {
+      "artifacts": [
+        {
+          "bytes": 76926918,
+          "clauses": 1154966,
+          "generated_path": "/tmp/erdos617-full-k26.cnf",
+          "sha256": "82f8815b00672fe957b4774141f51486daf0eae7fa21009769d13154d208e869",
+          "variables": 1625
+        }
+      ],
+      "commands": [
+        "python3 src/generate_full_k26_cnf.py /tmp/erdos617-full-k26.cnf",
+        "python3 tests/test_full_k26_cnf.py --generator src/generate_full_k26_cnf.py",
+        "cadical -t 300 --no-binary /tmp/erdos617-full-k26.cnf /tmp/erdos617-e007.drat"
+      ],
+      "expected_outputs_and_falsification": "A SAT model must pass both exhaustive coloring checkers; UNSAT requires a complete independently checked certificate; UNKNOWN/TIMEOUT is non-evidence. Any clause-audit, symmetry, model, or proof failure falsifies a promoted result.",
+      "id": "E007-UNRESTRICTED-K26-PROBE",
+      "input_space": "All 325 edges of K26 with five one-hot colors and all 230230 six-sets, using only a proved-safe spoke-color ordering symmetry.",
+      "mathematical_question": "Does the full unrestricted balanced K26 coloring formula have a model?",
+      "resource_cap": "Five minutes wall time and 4 GiB virtual memory for the first official CaDiCaL 1.9.5 run.",
+      "result": "UNKNOWN/TIMEOUT. The 2094583808-byte partial DRAT was deleted and no existence or nonexistence evidence is claimed.",
+      "status": "PARTIAL-EXPERIMENTAL",
+      "verification_plan": "Deterministic full generator, independent clause-by-clause audit, semantic validation of any model, and RUP-only LRAT with both checkers for any UNSAT result.",
+      "why_high_information": "This directly probes the exact unrestricted r=5 instance rather than a structured family or local relaxation."
+    },
+    {
+      "artifacts": [
+        {"path": "artifacts/local_205/l205_4466_a1.cnf", "sha256": "d69f7568dc8d46ed1dd06710ea77ac4f41e5a190e4189f2228641923011b4682", "variables": 3363, "clauses": 42666},
+        {"path": "artifacts/local_205/l205_4466_a2.cnf", "sha256": "f5e094b3d5a28a434fc3c1f2ec03db37b8df8faf8336b567b8f0549eb2c76b69", "variables": 3363, "clauses": 42666},
+        {"path": "artifacts/local_205/l205_4556_small_a1.cnf", "sha256": "9fd2ea0a0b5ba4ced97f0cca2c9a41d56d9169dadce6db6a8354256453267165", "variables": 3363, "clauses": 42666},
+        {"path": "artifacts/local_205/l205_4556_small_a2.cnf", "sha256": "4516a3227501e169614bc084c78d5df74ba24d7f1cdb9d9cfdf28c5eae6f884a", "variables": 3363, "clauses": 42666},
+        {"path": "artifacts/local_205/l205_4556_large_a1.cnf", "sha256": "e927201a10246650107d3c766e7a483717a135a3eb317040c06dd9de6169549e", "variables": 3363, "clauses": 42666},
+        {"path": "artifacts/local_205/l205_4556_large_a2.cnf", "sha256": "0078279cc439c0f94bcb9e6a593fced5940f8d60b87b91fe79b1a6b3fd231c8a", "variables": 3363, "clauses": 42666},
+        {"path": "artifacts/local_205/l205_5555_a1.cnf", "sha256": "05be77658d784f42d2b2c7a2ca35e7687e7f85d5a23abc1811cb2809d46fb0cc", "variables": 3363, "clauses": 42666},
+        {"path": "artifacts/local_205/l205_5555_a2.cnf", "sha256": "8f39b9ec97460c152099d138083cac3bb27ad2a702329d8d054b0592200999bd", "variables": 3363, "clauses": 42666},
+        {"path": "certificates/local_205/l205_4466_a1.lrat.xz", "sha256": "652e790e4b5f75886bfad0349a319a11a5753504b74bbe985b596f69058623c1", "bytes": 19880, "raw_bytes": 277848, "raw_sha256": "c1349bdde2377efa6aef2dcd3a49d7a2eb3beefaa2bf84440b408808359ede2b"},
+        {"path": "certificates/local_205/l205_4466_a2.lrat.xz", "sha256": "f14df0e0d1541db810d1f59855a9842387531c6e454e5ca929b8c5990449b31d", "bytes": 15956, "raw_bytes": 261545, "raw_sha256": "f52402f5c716fedab5092cdebb975dcc790abdaf16c7357f38fe2a01cd4000a3"},
+        {"path": "certificates/local_205/l205_4556_small_a1.lrat.xz", "sha256": "1238362ab1045a2f9fa1df2205c951af57aa83973e384abb47f91af59f4004c2", "bytes": 33520, "raw_bytes": 343697, "raw_sha256": "b4f3a26f12862f3032449572dfae1fa3f332234199f1f2026253209a2e5ff6ab"},
+        {"path": "certificates/local_205/l205_4556_small_a2.lrat.xz", "sha256": "db121fcfc5c45afed410ffc2f27f5270ab53988583d6a563c1d0cdcaa8612d3f", "bytes": 14848, "raw_bytes": 258007, "raw_sha256": "b2c555a0a4309f8d8c75f68a376a6557f62fea2f0051ea3f672bcfe9a1cf237e"},
+        {"path": "certificates/local_205/l205_4556_large_a1.lrat.xz", "sha256": "1238362ab1045a2f9fa1df2205c951af57aa83973e384abb47f91af59f4004c2", "bytes": 33520, "raw_bytes": 343697, "raw_sha256": "b4f3a26f12862f3032449572dfae1fa3f332234199f1f2026253209a2e5ff6ab"},
+        {"path": "certificates/local_205/l205_4556_large_a2.lrat.xz", "sha256": "e6a5a4fd532cd14a4cf0558b104e952cc9588af408c0e6430047de2f55979e5e", "bytes": 19468, "raw_bytes": 274528, "raw_sha256": "07ee7a52245354df557bf31016ab7e0843e864cf33feb61dfc84755502b3b9da"},
+        {"path": "certificates/local_205/l205_5555_a1.lrat.xz", "sha256": "596aec6b2387a3f67d48b5c7d6cf60dc123fbe1f69f8a6a834b3b6a8c2f8e4d0", "bytes": 14784, "raw_bytes": 256555, "raw_sha256": "dad1acca5031425994c1a8115a365e2ad8aa9e9fab991f64f4af39fb7feca2b6"},
+        {"path": "certificates/local_205/l205_5555_a2.lrat.xz", "sha256": "ec2e52c7f79114a979de21baaa268ea6d3bc3aecc703d43e6c8cbe65ad42cace", "bytes": 44444, "raw_bytes": 391878, "raw_sha256": "3b0d2975495531dd44ee7f2e040e49dceb5c89be007bd3a87416c52dba98f1f1"}
+      ],
+      "certificate_generation": {
+        "solver": "official CaDiCaL rel-1.9.5 at commit 146207318796f094dcded87349a64f0c6927309e",
+        "solver_command": "cadical -t 300 --no-binary INPUT.cnf OUTPUT.drat",
+        "converter": "drat-trim -U -L at commit 2e5e29cb0019d5cfd547d4208dca1b3ec290349f",
+        "rat_lemmas_in_every_core": 0,
+        "compression": "Python standard-library lzma, XZ format, preset 6"
+      },
+      "commands": [
+        "python3 tests/test_local_204_generator.py",
+        "python3 tests/verify_local_204_certificates.py --family 205 --cnf-directory artifacts/local_205 --proof-directory certificates/local_205 --c-checker build/lrat-check-upstream --python-checker src/check_lrat.py",
+        "python3 repro/generate_local_204_certificates.py --family 205 --cadical /path/to/cadical-1.9.5 --drat-trim build/drat-trim-upstream"
+      ],
+      "expected_outputs_and_falsification": "The independent catalog must recover exactly eight order-21 representatives and all CNFs byte-for-byte. Both LRAT checkers must validate every proof and reject deliberate corruptions.",
+      "id": "E008-LOCAL-205-EXACT-CERTIFICATES",
+      "input_space": "All exact order-21 Kang--Pikhurko extremal branches at degree profile (4,5,5,5,6), with unrestricted spoke assignments and exact blocks for the other four colors.",
+      "mathematical_question": "Can the unbalanced arithmetic local-count-205 branch occur?",
+      "resource_cap": "Five minutes wall time and 2 GiB RAM per representative.",
+      "result": "UNSAT for all eight necessary incidence systems; excludes the unbalanced local-count-205 branch but not the balanced one-slack branch by itself.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Independent catalog and encoding tests, deterministic CNFs, RUP-only LRAT, two independent checkers, adversarial corruptions, and compressed/raw hashes.",
+      "why_high_information": "This exhausts the only degree profile attaining corrected arithmetic value 205."
+    },
+    {
+      "artifacts": [
+        {"path": "artifacts/local_205_near.cnf", "sha256": "93dd2fe7924b16c7836a8635d21ba28ac4dbc8d25b4f31042129714a24d07629", "bytes": 4966028, "variables": 11079, "clauses": 127686},
+        {"path": "artifacts/local_205_near_core.cnf", "sha256": "83b015ff7fa51c1a500454aeb6cbcb3ff9176955b7ea347c32bab151a83340ad", "bytes": 900432, "variables": 11079, "clauses": 30104},
+        {"path": "certificates/local_205_near.lrat.xz", "sha256": "b114c11ee1b7b1fca3f66c979b308e76ba693ae16fa5a25b80d94b8c81ed17f7", "bytes": 303095076, "raw_bytes": 1443988824, "raw_lines": 3422188, "raw_sha256": "914593f53d0715ebeb04a7d738c63c29487a56dbc60385aaca77a5edafabb1b1"}
+      ],
+      "certificate_generation": {
+        "solver": "official Kissat 4.0.4 at commit 8af8e56f174b778aef3aa45af9f739b2a5f492c2",
+        "solver_binary_sha256": "9bc1c470d6675a70c04663603a8de6a65babf1e4fa0b8883874536d2ab77a3ee",
+        "solver_command": "kissat --unsat --eliminate=0 --fastel=0 --factor=0 --congruence=0 --definitions=0 --extract=0 --substitute=0 --sweep=0 --time=890 -q CORE.cnf OUTPUT.binary.drat",
+        "binary_drat_bytes": 821817137,
+        "binary_drat_sha256": "b1fe23ac311791eec012f1de7dbfbfd8f26b180eaef7bd63a232fe9adaa701f2",
+        "converter": "drat-trim -i -U -L at commit 2e5e29cb0019d5cfd547d4208dca1b3ec290349f",
+        "full_cnf_core_originals": 30002,
+        "lrat_additions": 2331242,
+        "resolution_steps": 171248626,
+        "rat_lemmas": 0,
+        "compression": "XZ/liblzma preset 6; byte-identical to Python standard-library lzma"
+      },
+      "commands": [
+        "python3 tests/test_local_205_near_generator.py",
+        "python3 tests/verify_local_205_near_certificate.py --cnf artifacts/local_205_near.cnf --core artifacts/local_205_near_core.cnf --proof certificates/local_205_near.lrat.xz --subset-checker src/check_cnf_subset.py --c-checker build/lrat-check-upstream --python-checker src/check_lrat.py",
+        "python3 repro/generate_local_205_near_certificate.py --kissat /path/to/kissat-4.0.4 --drat-trim build/drat-trim-upstream"
+      ],
+      "expected_outputs_and_falsification": "The generator audit must reconstruct every graph/incidence/symmetry clause; the core must be a semantic subset and a corruption must fail; both LRAT checkers must derive empty from the full CNF and reject truncated and forged-empty proofs.",
+      "id": "E009-LOCAL-205-NEAR-CERTIFICATE",
+      "input_space": "The complete balanced local-count-205 near-extremal necessary system with a variable 20-vertex, 45-edge exceptional graph satisfying alpha<=4 and omega<=5 and four exact tight resolutions.",
+      "mathematical_question": "Can the sole remaining balanced local-count-205 branch occur?",
+      "resource_cap": "Initial five-minute/2 GiB run, predeclared 1800-second/8 GiB proof escalation, then a recorded 900-second cap for each RUP-only certification repair.",
+      "result": "UNSAT for the full necessary CNF with a direct full-CNF RUP-only LRAT. Together with E006 and E008, establishes L(v)>=206 but does not decide the full K26 coloring formula.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Human bridge and symmetry proof; exhaustive generator audit; semantic core audit; direct full-CNF RUP-only LRAT; independent C and Python checkers; proof and core corruptions; exact hashes and reproduction.",
+      "why_high_information": "This closes the final local-count-205 branch without classifying or restricting the exceptional graph."
+    },
+    {
+      "artifacts": [],
+      "commands": [
+        "python3 src/generate_local_205_critical_cnf.py ...",
+        "python3 src/generate_local_205_critical_near_cnf.py ..."
+      ],
+      "expected_outputs_and_falsification": "No outcome is promoted without a complete component classification and checked proof certificates.",
+      "id": "E010-EDGE-CRITICAL-DIAGNOSTIC",
+      "input_space": "Provisional componentwise alpha-critical templates inside the balanced E009 branch.",
+      "mathematical_question": "Can edge-critical component structure replace the classification-free E009 graph encoding?",
+      "resource_cap": "One-second diagnostic runs for fixed cases and one 120-second variable-case probe.",
+      "result": "Eight bare fixed-case UNSAT statuses and one variable-case timeout; no certificates and no mathematical claim. Superseded by classification-free E009.",
+      "status": "PARTIAL-EXPERIMENTAL",
+      "verification_plan": "Preserved only as a failed route; it would require a complete independent classification and proof certificates before reuse.",
+      "why_high_information": "It tested whether a structural decomposition could replace a large variable graph, but exposed an unclosed classification obligation."
+    },
+    {
+      "artifacts": [
+        {"path": "artifacts/local_206/", "file_count": 12, "bytes": 10283484, "inventory": "experiments/E011-local-206-result.md and artifacts/SHA256SUMS"},
+        {"path": "certificates/local_206/", "file_count": 12, "bytes": 267432, "raw_bytes": 3534933, "inventory": "experiments/E011-local-206-result.md and artifacts/SHA256SUMS"},
+        {"path": "artifacts/local_206_near/", "file_count": 18, "bytes": 150789909, "certified_inputs": 14, "exploratory_inputs": 4, "inventory": "experiments/E011-local-206-result.md and artifacts/SHA256SUMS"},
+        {"path": "certificates/local_206_near/", "file_count": 14, "bytes": 1467400160, "raw_bytes": 7297711045, "inventory": "experiments/E011-local-206-result.md and artifacts/SHA256SUMS"},
+        {"path": "experiments/E011-local-206-result.md", "bytes": 15842, "sha256": "a21484e1d7f904470b012a20a2357259fe9b7919d08bd80b59af8bf52e29fc22"}
+      ],
+      "certificate_generation": {
+        "fixed_solver": "official CaDiCaL rel-1.9.5 at commit 146207318796f094dcded87349a64f0c6927309e",
+        "fixed_solver_binary_sha256": "6f2c68291f7b78dc81a4e3d04c4f0c02a4876748d0b582b4b68d5eb8a94914b3",
+        "near_solver": "official Kissat 4.0.4 at commit 8af8e56f174b778aef3aa45af9f739b2a5f492c2",
+        "near_solver_binary_sha256": "9bc1c470d6675a70c04663603a8de6a65babf1e4fa0b8883874536d2ab77a3ee",
+        "near_solver_command": "kissat --unsat --eliminate=0 --fastel=0 --factor=0 --congruence=0 --definitions=0 --extract=0 --substitute=0 --sweep=0 --time=CAP_MINUS_10 -q INPUT.cnf OUTPUT.drat",
+        "converter": "drat-trim -U -L at commit 2e5e29cb0019d5cfd547d4208dca1b3ec290349f",
+        "converter_binary_sha256": "a48ebed7b4b6b373d3ddbeb3368dae7622a9e17bab7fe6eb751ab996757f9fbe",
+        "fixed_lrat_additions": 4607,
+        "near_lrat_additions": 12228442,
+        "near_resolution_steps": 884858742,
+        "rat_lemmas_in_every_selected_core": 0,
+        "compression": "XZ/liblzma preset 6"
+      },
+      "commands": [
+        "python3 tests/test_local_206_reduction.py",
+        "python3 tests/test_local_204_generator.py",
+        "python3 tests/test_local_206_near_generator.py",
+        "python3 tests/verify_local_204_certificates.py --family 206 --cnf-directory artifacts/local_206 --proof-directory certificates/local_206 --c-checker build/lrat-check-upstream --python-checker src/check_lrat.py",
+        "TMPDIR=/tmp python3 tests/verify_local_206_near_certificates.py --cnf-directory artifacts/local_206_near --proof-directory certificates/local_206_near --c-checker build/lrat-check-upstream --python-checker src/check_lrat.py",
+        "python3 repro/generate_local_204_certificates.py --family 206 --cadical /path/to/cadical-1.9.5 --drat-trim build/drat-trim-upstream",
+        "python3 repro/generate_local_206_near_certificates.py --kissat /path/to/kissat-4.0.4 --drat-trim build/drat-trim-upstream"
+      ],
+      "expected_outputs_and_falsification": "The independent arithmetic and catalog audits must recover every local-count-206 family; all 26 certified CNFs must regenerate byte-for-byte; both LRAT checkers must validate every zero-RAT proof against its own input and reject deliberate corruptions. An omitted slack allocation or composition vector, unsafe symmetry, valid configuration, checker disagreement, corruption acceptance, or hash mismatch falsifies the result.",
+      "id": "E011-LOCAL-206-CERTIFICATES",
+      "input_space": "All local-count-206 necessary systems: twelve fixed order-22 Kang--Pikhurko representatives; the full variable balanced 46-edge graph; and thirteen exhaustive order-21 edge-minimal/private-witness composition branches, including the proved complete canonical label quotient for branch 0111.",
+      "mathematical_question": "Can local count 206 occur at any vertex of an unrestricted balanced five-coloring of K26?",
+      "resource_cap": "Five minutes and 2 GiB per fixed representative; 900 seconds and 4 GiB for the initial variable systems; recorded 300-second branch probes, 1800-second hard-branch escalations, and one 600-second complete canonical-0111 run.",
+      "result": "UNSAT for every necessary system in the exhaustive local-count-206 split, with direct per-CNF RUP-only LRAT certificates. Establishes L(v)>=207, but does not decide the full K26 coloring formula.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Human reduction and symmetry proofs; independent arithmetic, extremal-catalog, deletion, composition, and clause audits; deterministic CNFs; zero-RAT LRAT; two independent checkers; adversarial corruptions; exact compressed and raw hashes.",
+      "why_high_information": "This closes the complete prior local frontier without classifying the variable exceptional graphs and strengthens simultaneous unrestricted triangle constraints at every vertex."
+    },
+    {
+      "artifacts": [
+        {"path": "artifacts/local_207/", "file_count": 12, "bytes": 10317980, "role": "redundant fixed corroboration", "inventory": "experiments/E012-local-207-result.md and artifacts/SHA256SUMS"},
+        {"path": "certificates/local_207/", "file_count": 12, "bytes": 236980, "raw_bytes": 3478312, "role": "redundant fixed corroboration", "inventory": "experiments/E012-local-207-result.md and artifacts/SHA256SUMS"},
+        {"path": "artifacts/local_207_near/", "file_count": 33, "bytes": 278104807, "certified_inputs": 2, "exploratory_inputs": 31, "inventory": "experiments/E012-local-207-result.md and artifacts/SHA256SUMS"},
+        {"path": "certificates/local_207_near/", "file_count": 2, "bytes": 283512092, "raw_bytes": 1458672778, "inventory": "experiments/E012-local-207-result.md and artifacts/SHA256SUMS"},
+        {"path": "experiments/E012-local-207-result.md", "bytes": 12120, "sha256": "075e5f012954f541da25f658869c6ce489d7c6e3e0e40fe83db286d1ce0c431f"}
+      ],
+      "certificate_generation": {
+        "fixed_solver": "official CaDiCaL rel-1.9.5 at commit 146207318796f094dcded87349a64f0c6927309e",
+        "fixed_solver_binary_sha256": "6f2c68291f7b78dc81a4e3d04c4f0c02a4876748d0b582b4b68d5eb8a94914b3",
+        "near_solver": "official Kissat 4.0.4 at commit 8af8e56f174b778aef3aa45af9f739b2a5f492c2",
+        "near_solver_binary_sha256": "9bc1c470d6675a70c04663603a8de6a65babf1e4fa0b8883874536d2ab77a3ee",
+        "near_solver_command": "kissat --unsat --eliminate=0 --fastel=0 --factor=0 --congruence=0 --definitions=0 --extract=0 --substitute=0 --sweep=0 --time=890 -q INPUT.cnf OUTPUT.drat",
+        "converter": "drat-trim -U -L at commit 2e5e29cb0019d5cfd547d4208dca1b3ec290349f",
+        "converter_binary_sha256": "a48ebed7b4b6b373d3ddbeb3368dae7622a9e17bab7fe6eb751ab996757f9fbe",
+        "fixed_lrat_additions": 3737,
+        "near_lrat_additions": 2142924,
+        "near_resolution_steps": 177857357,
+        "rat_lemmas_in_every_selected_core": 0,
+        "compression": "XZ/liblzma preset 6"
+      },
+      "commands": [
+        "python3 tests/test_local_207_reduction.py",
+        "python3 tests/test_local_204_generator.py",
+        "python3 tests/test_local_207_near_generator.py",
+        "python3 tests/verify_local_204_certificates.py --family 207 --cnf-directory artifacts/local_207 --proof-directory certificates/local_207 --c-checker build/lrat-check-upstream --python-checker src/check_lrat.py",
+        "TMPDIR=/tmp python3 tests/verify_local_207_near_certificates.py --cnf-directory artifacts/local_207_near --proof-directory certificates/local_207_near --c-checker build/lrat-check-upstream --python-checker src/check_lrat.py",
+        "python3 repro/generate_local_204_certificates.py --family 207 --cadical /path/to/cadical-1.9.5 --drat-trim build/drat-trim-upstream",
+        "python3 repro/generate_local_207_near_certificates.py --kissat /path/to/kissat-4.0.4 --drat-trim build/drat-trim-upstream"
+      ],
+      "expected_outputs_and_falsification": "The standalone audit must recover every local-count-207 family and validate the spoke-pigeonhole elimination; all selected CNFs must regenerate byte-for-byte; both LRAT checkers must validate both zero-RAT proofs against their own complete input and reject deliberate corruptions. An omitted slack allocation, misuse of the spoke lemma, invalid lower-edge deletion bridge, unsafe symmetry, valid configuration, checker disagreement, corruption acceptance, or hash mismatch falsifies the result.",
+      "id": "E012-LOCAL-207-CERTIFICATES",
+      "input_space": "All local-count-207 necessary systems. The spoke-pigeonhole lemma eliminates every degree-two and degree-three branch. The two remaining families are the balanced 47-edge and unbalanced 51-edge variable graphs, each reduced exhaustively by the certified E011 lower-edge obstruction and a private-witness deletion split; the unbalanced certificate uses the complete forced-composition monolith.",
+      "mathematical_question": "Can local count 207 occur at any vertex of an unrestricted balanced five-coloring of K26?",
+      "resource_cap": "Five minutes and 2 GiB per redundant fixed representative; 900 seconds and 4 GiB per direct, edge-minimal, canonical, or diagnostic variable-graph run, at most four concurrently.",
+      "result": "UNSAT for the two theorem-bearing canonical necessary systems with direct RUP-only LRAT certificates. Together with the proved spoke-pigeonhole and lower-edge reductions, establishes L(v)>=208, but does not decide the full K26 coloring formula.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Human reduction, deletion, composition, and symmetry proofs; independent arithmetic, extremal-catalog, clause, and branch audits; deterministic CNFs; zero-RAT LRAT; two independent checkers; adversarial corruptions; exact compressed and raw hashes.",
+      "why_high_information": "A new human lemma collapses the nominal six-family frontier to two variable systems, and two compact certificates strengthen an unrestricted simultaneous local condition at every vertex."
+    },
+    {
+      "artifacts": [
+        {"path": "artifacts/local_208_near/balanced48.cnf", "sha256": "237d12ee083a5e4835ab85b374468049075b0813d409d1116d43bd77a9edf30c", "bytes": 4998200, "variables": 11508, "clauses": 129399, "role": "audited direct exploratory input"},
+        {"path": "artifacts/local_208_near/balanced48_minimal.cnf", "sha256": "87b548061639a7b00e057f445e603c990c0281d67ad9ed9e6ea7906a9947aa6c", "bytes": 6859443, "variables": 27468, "clauses": 215089, "role": "audited deletion reduction"},
+        {"path": "artifacts/local_208_near/balanced48_minimal_canonical.cnf", "sha256": "1378d0e8d83b41c085ccfa248fc4d656395598888e04120dcce471fc12eb7686", "bytes": 6859473, "variables": 27468, "clauses": 215094, "role": "selected one-exception input"},
+        {"path": "artifacts/local_208_near/unbalanced52.cnf", "sha256": "0a7c96ab999812bae7d0c45e60f00959ef727fd8340a115536b892fef56e490a", "bytes": 6483472, "variables": 12502, "clauses": 154274, "role": "audited direct exploratory input"},
+        {"path": "artifacts/local_208_near/unbalanced52_minimal.cnf", "sha256": "80299850aded00b05761f05b7f83d0d1884b2013b9270af8ab1f0726c69215da", "bytes": 8704855, "variables": 31192, "clauses": 256544, "role": "audited deletion reduction"},
+        {"path": "artifacts/local_208_near/unbalanced52_minimal_composed_canonical.cnf", "sha256": "ebbb2adeb16dd20ffa83f305ff7b349989e7a80fd14606acadb28b843c41d707", "bytes": 8729457, "variables": 31508, "clauses": 257757, "role": "selected one-exception input"},
+        {"path": "artifacts/local_208_double/balanced_double44.cnf", "sha256": "38da92612cd615195af997da057dc8966f68a4e09ede06113894fec83c51c5ca", "bytes": 8823311, "variables": 17888, "clauses": 195859, "role": "audited direct two-exception input"},
+        {"path": "artifacts/local_208_double/balanced_double44_minimal_canonical.cnf", "sha256": "14231e94a1857a9a2d964537b3876500ea0639eeec0f22a4dd58bc2109a4c1f2", "bytes": 12545821, "variables": 49808, "clauses": 367244, "role": "selected two-exception input"},
+        {"path": "artifacts/local_208_double/unbalanced_double49_39.cnf", "sha256": "624b399b4763fe3c775decfeb91d94a89b5a848e42cca223457407bb77d7c16d", "bytes": 9182807, "variables": 18110, "clauses": 201674, "role": "audited direct two-exception input"},
+        {"path": "artifacts/local_208_double/unbalanced_double49_39_minimal_canonical.cnf", "sha256": "4d57775d8a67e9807624942718e1fb5a0355dbe2b158e444fa0b310737cb199f", "bytes": 12949202, "variables": 50309, "clauses": 375085, "role": "selected two-exception input"},
+        {"path": "artifacts/local_208_double_classified/", "file_count": 15, "bytes": 131547032, "branches": 14, "manifest": "artifacts/local_208_double_classified/manifest.json", "manifest_sha256": "2843acee8494c358c20a56bf92a4e65fdfa9ac1598c85edfa8bc4615915640d5", "role": "exhaustive classified double-exception branches"},
+        {"path": "artifacts/local_208_double_classified_hard/balanced_double44__b4555_large_a2__b4555_large_a2__twin_canonical.cnf", "sha256": "4fd22bad0590d3b8ad611e303f8202cd8a6eb06c3d832d07dadf2eb6b66844da", "bytes": 9298109, "variables": 19194, "clauses": 219240, "role": "complete representation quotient for the sole undecided classified branch"},
+        {"path": "certificates/local_208/", "file_count": 2, "bytes": 416507868, "raw_bytes": 2160118765, "role": "two theorem-bearing one-exception proofs", "inventory": "experiments/E013-local-208-result.md and artifacts/SHA256SUMS"},
+        {"path": "certificates/local_208_classified/", "file_count": 28, "proofs": 14, "bytes": 818893666, "raw_bytes": 3715897000, "role": "exhaustive classified double-exception proofs and metadata", "inventory": "experiments/E013-local-208-result.md and artifacts/SHA256SUMS"},
+        {"path": "experiments/E013-local-208-result.md", "bytes": 12626, "sha256": "42d69aeaf392198593c24079cd429a0f34d578f6d73a574ce376a2610fe4d2f8"}
+      ],
+      "certificate_generation": {
+        "solver": "official Kissat 4.0.4 at commit 8af8e56f174b778aef3aa45af9f739b2a5f492c2",
+        "solver_binary_sha256": "9bc1c470d6675a70c04663603a8de6a65babf1e4fa0b8883874536d2ab77a3ee",
+        "solver_command": "kissat --unsat --eliminate=0 --fastel=0 --factor=0 --congruence=0 --definitions=0 --extract=0 --substitute=0 --sweep=0 --time=CAP_MINUS_10 -q INPUT.cnf OUTPUT.binary.drat",
+        "converter": "drat-trim -U -L at commit 2e5e29cb0019d5cfd547d4208dca1b3ec290349f",
+        "converter_binary_sha256": "a48ebed7b4b6b373d3ddbeb3368dae7622a9e17bab7fe6eb751ab996757f9fbe",
+        "accepted_unsat_condition": "zero-RAT LRAT accepted by the pinned C checker and independent Python checker, with corruption rejection",
+        "one_exception_lrat_additions": 2989190,
+        "one_exception_resolution_steps": 262943529,
+        "one_exception_raw_lrat_bytes": 2160118765,
+        "one_exception_compressed_lrat_bytes": 416507868,
+        "classified_lrat_additions": 7339819,
+        "classified_resolution_steps": 421694283,
+        "classified_raw_lrat_bytes": 3715897000,
+        "classified_compressed_lrat_bytes": 818878252,
+        "rat_lemmas_in_every_theorem_bearing_core": 0,
+        "compression": "XZ/liblzma preset 6"
+      },
+      "commands": [
+        "python3 tests/test_local_208_reduction.py",
+        "python3 repro/generate_local_208_inputs.py",
+        "python3 tests/test_local_208_near_generator.py",
+        "python3 repro/generate_local_208_double_inputs.py",
+        "python3 tests/test_local_208_double_generator.py",
+        "python3 repro/generate_local_208_double_classified_inputs.py",
+        "python3 tests/test_local_208_double_classified_generator.py",
+        "python3 repro/generate_local_208_double_classified_hard_input.py",
+        "python3 tests/test_local_208_double_classified_hard_generator.py",
+        "python3 tests/verify_local_208_certificates.py --near-cnf-directory artifacts/local_208_near --proof-directory certificates/local_208 --c-checker build/lrat-check-upstream --python-checker src/check_lrat.py",
+        "python3 tests/verify_local_208_classified_certificates.py --classified-cnf-directory artifacts/local_208_double_classified --hard-cnf-directory artifacts/local_208_double_classified_hard --proof-directory certificates/local_208_classified --c-checker build/lrat-check-upstream --python-checker src/check_lrat.py",
+        "python3 repro/generate_local_208_certificates.py --kissat /path/to/kissat-4.0.4 --drat-trim build/drat-trim-upstream",
+        "python3 repro/generate_local_208_classified_certificates.py --kissat /path/to/kissat-4.0.4 --drat-trim build/drat-trim-upstream --c-checker build/lrat-check-upstream --python-checker src/check_lrat.py",
+        "ulimit -Sv 4194304; timeout 900 kissat --unsat --eliminate=0 --fastel=0 --factor=0 --congruence=0 --definitions=0 --extract=0 --substitute=0 --sweep=0 --time=890 -q INPUT.cnf OUTPUT.binary.drat",
+        "ulimit -Sv 4194304; timeout 900 kissat --unsat --time=890 -q DOUBLE_INPUT.cnf DIAGNOSTIC.binary.drat",
+        "ulimit -Sv 2097152; timeout 300 kissat --unsat --eliminate=0 --fastel=0 --factor=0 --congruence=0 --definitions=0 --extract=0 --substitute=0 --sweep=0 --time=290 -q CLASSIFIED_BRANCH.cnf OUTPUT.binary.drat",
+        "ulimit -Sv 2097152; timeout 600 kissat --unsat --eliminate=0 --fastel=0 --factor=0 --congruence=0 --definitions=0 --extract=0 --substitute=0 --sweep=0 --time=590 -q HARD_QUOTIENT.cnf OUTPUT.binary.drat"
+      ],
+      "expected_outputs_and_falsification": "The standalone reduction must recover exactly four irreducible local-count-208 targets. The independent generator audit must reconstruct and hash all six one-exception inputs. A model must pass semantic reconstruction; UNSAT is accepted only as zero-RAT LRAT checked twice with corruptions rejected. An omitted profile, invalid lower-core embedding, unsafe quotient, clause or hash mismatch, checker failure, or accepted corruption falsifies promotion.",
+      "id": "E013-LOCAL-208-COMPATIBILITY",
+      "input_space": "Every exact local-count-208 degree profile, exceptional-penalty allocation, and four-partite slack placement. The independent reduction leaves balanced48 and unbalanced52 one-exception systems plus balanced_double44 and unbalanced_double49_39 two-exception systems. The two actual double families are also split exhaustively into 14 Kang--Pikhurko equality-template branches after eight templates with an immediate color K6 are proved impossible.",
+      "mathematical_question": "Can local count 208 occur at any vertex of an unrestricted balanced five-coloring of K26?",
+      "resource_cap": "The complete reduction audit is capped at 10 seconds and 128 MiB. Each selected one- or two-exception monolith run is capped at 900 seconds and 4 GiB address space, with at most two concurrent processes. Each of the 14 classified branches is capped at 300 seconds and 2 GiB, at most four concurrently. The sole hard representation quotient is capped at 600 seconds and 2 GiB. Proof conversion and each checker call are capped at 1800 seconds and 4 GiB, one proof at a time.",
+      "result": "UNSAT for both complete one-exception necessary systems and all 14 exhaustive classified double-exception branches, including a complete auxiliary-class quotient for the sole initially undecided branch. Every theorem-bearing result has a zero-RAT LRAT checked by both independent checkers with corruption rejection. Together with the proved reduction, establishes L(v)>=209, but does not decide the full K26 coloring formula.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Human profile, spoke, deletion, composition, and symmetry arguments; independent arithmetic and clause reconstruction; deterministic inputs and hashes; semantic checking of any model; zero-RAT LRAT and two independent checkers plus deliberate corruptions for any UNSAT branch.",
+      "why_high_information": "This resolves the complete local-count-208 frontier and strengthens the certified simultaneous local bound from 208 to 209 at every vertex."
+    },
+    {
+      "artifacts": [
+        {"path": "artifacts/local_209_near/", "file_count": 6, "bytes": 42701728, "selected_balanced_cnf_sha256": "c1837b372cb415b77eb6b7bbaec874085efa1187f07082ac5d5521d4495dd092", "role": "audited one-exception inputs"},
+        {"path": "artifacts/local_209_double_classified/", "file_count": 17, "bytes": 175704986, "manifest_sha256": "7dda6b2d6ae52335722364ff2d688cba7b07ae44abc691dde43245f9b97ee407", "role": "sixteen exhaustive classified double branches"},
+        {"path": "artifacts/local_209_double_classified_hard/", "file_count": 1, "bytes": 10932764, "role": "hard 45/44 representation quotient"},
+        {"path": "artifacts/local_209_double_classified_mixed_canonical/", "file_count": 9, "bytes": 86777377, "role": "audited mixed-branch quotients"},
+        {"path": "artifacts/local_209_double_classified_u50_full_canonical/", "file_count": 2, "bytes": 23281986, "role": "audited full u50 quotients"},
+        {"path": "certificates/local_209/", "file_count": 2, "bytes": 225676742, "raw_bytes": 1300396103, "role": "certified balanced49 proof and metadata"},
+        {"path": "certificates/local_209_classified/", "file_count": 26, "proofs": 13, "bytes": 677077796, "raw_bytes": 3155731434, "role": "thirteen covered classified branches"},
+        {"path": "artifacts/local_209_hard_availability/", "file_count": 2, "bytes": 4038892, "role": "compressed hard availability inputs; the unsplit base is theorem-bearing"},
+        {"path": "certificates/local_209_hard_availability/", "file_count": 4, "proofs": 2, "bytes": 852522, "role": "unsplit hard availability theorem proof plus redundant diagnostic-child proof"},
+        {"path": "artifacts/local_209_remaining_availability/", "file_count": 3, "bytes": 5910268, "role": "compressed unsplit u50_a1, u50_a2, and unbalanced53 availability inputs"},
+        {"path": "certificates/local_209_remaining_availability/", "file_count": 6, "proofs": 3, "bytes": 1724272, "role": "three unsplit theorem-bearing availability proofs and metadata"},
+        {"path": "certificates/local_209_balanced_counter_split/", "file_count": 6, "proofs": 3, "bytes": 24257968, "role": "redundant checked direct counter leaves; exact unit scopes are in metadata"},
+        {"path": "certificates/local_209_balanced_counter_refinement/", "file_count": 4, "proofs": 2, "bytes": 111518385, "role": "redundant checked refinement leaves; exact unit scopes are in metadata"},
+        {"path": "certificates/local_209_u50_a1_counter_refinement/", "file_count": 2, "bytes": 54061289, "role": "individually certified u50_a1 refinement leaf; no parent coverage"},
+        {"path": "certificates/local_209_u50_counter_cascade/", "file_count": 4, "bytes": 335021974, "role": "two individually certified exactly-26 leaves; no parent coverage"},
+        {"path": "certificates/local_209_u50_exact27_secondary_low/", "file_count": 4, "proofs": 2, "bytes": 381198812, "raw_bytes": 1775344241, "role": "two earlier checked at-most-23 leaves, retained as redundant search artifacts"},
+        {"path": "artifacts/local_209_hard_refine6080_negative_refinement/", "file_count": 5, "bytes": 22094652, "role": "two exact hard-child refinement inputs plus a completely checked SAT diagnostic model and analysis"},
+        {"path": "artifacts/local_209_u50_exact24_tertiary/", "file_count": 4, "bytes": 46564178, "role": "redundant exact-24 tertiary split inputs"},
+        {"path": "certificates/local_209_u50_exact24_tertiary/", "file_count": 4, "proofs": 2, "bytes": 392296802, "role": "redundant checked tertiary-negative leaves"},
+        {"path": "artifacts/local_209_u50_tertiary_positive_refinement/", "file_count": 4, "bytes": 46564206, "role": "redundant tertiary-positive refinement inputs"},
+        {"path": "certificates/local_209_u50_tertiary_positive_refinement/", "file_count": 6, "proofs": 3, "bytes": 816447395, "role": "redundant checked leaves and direct split composition"},
+        {"path": "artifacts/local_209_u50_refine5294_negative_refinement/", "file_count": 4, "bytes": 46564238, "role": "redundant refinement-5294-negative split inputs"},
+        {"path": "certificates/local_209_u50_refine5294_negative_refinement/", "file_count": 8, "proofs": 4, "bytes": 880099996, "role": "redundant checked leaves and direct split composition"},
+        {"path": "artifacts/local_209_u50_refine5704_positive_refinement/", "file_count": 2, "bytes": 23282041, "role": "redundant refinement-5704-positive split inputs"},
+        {"path": "certificates/local_209_u50_refine5704_positive_refinement/", "file_count": 4, "proofs": 2, "bytes": 320426698, "role": "redundant checked refinement leaves"},
+        {"path": "artifacts/local_209_u50_refine5242_positive_refinement/", "file_count": 2, "bytes": 23282055, "role": "redundant refinement-5242-positive split inputs"},
+        {"path": "certificates/local_209_u50_refine5242_positive_refinement/", "file_count": 4, "proofs": 2, "bytes": 247462934, "role": "redundant checked refinement leaves"},
+        {"path": "artifacts/local_209_unbalanced_refine7279_positive_refinement/", "file_count": 2, "bytes": 17482435, "role": "redundant unbalanced53 refinement inputs"},
+        {"path": "certificates/local_209_unbalanced_refine7279_positive_refinement/", "file_count": 4, "proofs": 2, "bytes": 446858886, "role": "redundant checked unbalanced53 refinement leaves"},
+        {"path": "experiments/E014-local-209-result.md", "bytes": 7997, "sha256": "9341aa70039853490e62315d8d7f78d74d48e30ce74e0ba8fc7c6927583f41dd"}
+      ],
+      "certificate_generation": {
+        "solver": "official Kissat 4.0.4 at commit 8af8e56f174b778aef3aa45af9f739b2a5f492c2",
+        "solver_binary_sha256": "9bc1c470d6675a70c04663603a8de6a65babf1e4fa0b8883874536d2ab77a3ee",
+        "solver_command": "kissat --unsat --eliminate=0 --fastel=0 --factor=0 --congruence=0 --definitions=0 --extract=0 --substitute=0 --sweep=0 --time=CAP_MINUS_10 -q INPUT.cnf OUTPUT.binary.drat",
+        "converter": "drat-trim -U -L at commit 2e5e29cb0019d5cfd547d4208dca1b3ec290349f",
+        "converter_binary_sha256": "a48ebed7b4b6b373d3ddbeb3368dae7622a9e17bab7fe6eb751ab996757f9fbe",
+        "accepted_unsat_condition": "zero-RAT LRAT accepted by the pinned C checker and independent Python checker, with corruption rejection and compressed round trip",
+        "balanced49_lrat_additions": 1460160,
+        "balanced49_resolution_steps": 164260237,
+        "balanced49_raw_lrat_bytes": 1300396103,
+        "balanced49_compressed_lrat_bytes": 225675808,
+        "classified_proofs": 13,
+        "classified_lrat_additions": 6178600,
+        "classified_resolution_steps": 359493362,
+        "classified_raw_lrat_bytes": 3155731434,
+        "classified_compressed_lrat_bytes": 677062840,
+        "availability_proofs": 4,
+        "availability_lrat_additions": 23803,
+        "availability_resolution_steps": 632515,
+        "availability_raw_lrat_bytes": 39894512,
+        "availability_compressed_lrat_bytes": 2090164,
+        "availability_compressed_cnf_bytes": 7932740,
+        "uncomposed_low_leaf_proofs": 2,
+        "uncomposed_low_leaf_lrat_additions": 2676741,
+        "uncomposed_low_leaf_resolution_steps": 205739438,
+        "uncomposed_low_leaf_raw_lrat_bytes": 1775344241,
+        "uncomposed_low_leaf_compressed_lrat_bytes": 381196068,
+        "rat_lemmas_in_every_promoted_proof": 0,
+        "compression": "XZ/liblzma preset 6"
+      },
+      "commands": [
+        "python3 tests/test_local_209_reduction.py",
+        "python3 tests/test_local_209_deletion_bridges.py",
+        "python3 tests/test_local_209_near_generator.py",
+        "python3 tests/test_local_209_double_generator.py",
+        "python3 tests/test_local_209_mixed_double_generator.py",
+        "python3 tests/test_local_209_double_classified_generator.py",
+        "python3 tests/test_local_209_double_classified_hard_generator.py",
+        "python3 tests/test_local_209_double_classified_u50_full_canonical_generator.py",
+        "python3 tests/test_local_209_double_classified_mixed_canonical_generator.py",
+        "python3 tests/test_local_209_u50_exact24_tertiary_generator.py",
+        "python3 tests/test_local_209_u50_tertiary_positive_refinement_generator.py",
+        "python3 tests/test_local_209_u50_refine5294_negative_refinement_generator.py",
+        "python3 tests/test_local_209_u50_refine5704_positive_refinement_generator.py",
+        "python3 tests/test_local_209_u50_refine5242_positive_refinement_generator.py",
+        "python3 tests/test_local_209_unbalanced_refine7279_positive_refinement_generator.py",
+        "python3 tests/test_local_209_hard_refine6080_negative_refinement_generator.py",
+        "python3 tests/test_local_209_hard_availability_generator.py",
+        "python3 tests/test_local_209_remaining_availability_generator.py",
+        "python3 tests/verify_local_209_hard_availability_certificate.py --c-checker build/lrat-check-upstream --python-checker src/check_lrat.py",
+        "python3 tests/verify_local_209_remaining_availability_certificates.py --c-checker build/lrat-check-upstream --python-checker src/check_lrat.py",
+        "python3 tests/test_local_209_split_composer_inputs.py",
+        "python3 tests/test_lrat_split_lifter.py",
+        "python3 tests/test_lrat_full.py",
+        "python3 tests/verify_local_209_certificates.py --near-cnf-directory artifacts/local_209_near --proof-directory certificates/local_209 --c-checker build/lrat-check-upstream --python-checker src/check_lrat.py --only balanced49_minimal_canonical",
+        "python3 tests/verify_local_209_classified_certificates.py --classified-cnf-directory artifacts/local_209_double_classified --hard-cnf-directory artifacts/local_209_double_classified_hard --mixed-cnf-directory artifacts/local_209_double_classified_mixed_canonical --u50-cnf-directory artifacts/local_209_double_classified_u50_full_canonical --proof-directory certificates/local_209_classified --c-checker build/lrat-check-upstream --python-checker src/check_lrat.py --only EACH_OF_THE_13_RECORDED_BRANCH_IDS"
+      ],
+      "expected_outputs_and_falsification": "The standalone reduction must recover exactly six targets after the spoke and order-24 eliminations; all ten deletion bridges, all sixteen classified branches, and all 3,542,000 final availability clauses must be reconstructed independently. Every promoted proof must regenerate its exact CNF and pass both LRAT checkers plus corruptions. An omitted allocation, deletion, equality type, or branch; unsafe quotient; edge evading the counted/unforced dichotomy; valid model; checker disagreement; accepted corruption; or hash mismatch falsifies the claim.",
+      "id": "E014-LOCAL-209-COMPATIBILITY",
+      "input_space": "Every exact local-count-209 degree profile, non-four-partite penalty set, residual slack allocation, exceptional-edge placement, and equality-template branch. The complete reduction leaves balanced49, balanced_double45_44, unbalanced53, unbalanced_double50_39, unbalanced_double49_40, and unbalanced_double49_44; the double targets classify into sixteen exhaustive branches.",
+      "mathematical_question": "Can local count 209 occur at any vertex of an unrestricted balanced five-coloring of K26?",
+      "resource_cap": "Ten seconds and 128 MiB for the reduction audit; 300 or 600 seconds and 2 GiB for classified direct/quotient runs; 900 seconds and 2 GiB for one-exception and counter-split runs; at most two concurrent solvers in the current decomposition; 1800 seconds and 4 GiB for proof conversion/checking.",
+      "result": "Complete at exact local count 209: balanced49 and thirteen classified branches retain their earlier certificates; four unsplit neighbor-color availability relaxations certify unbalanced53, 45/44 large_a2, and both 50/39 branches impossible. Together with the exhaustive reduction this establishes L(v)>=210, B+3R>=5460, 2R-M>=2860, and 3M>=2E+260. It does not decide the full K26 coloring formula.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Human profile, spoke, order-24, deletion, classification, symmetry, and neighbor-color availability proofs; independent arithmetic and exact clause reconstruction; deterministic compressed inputs and hashes; complete model checking for SAT; zero-RAT LRAT and two independent checkers plus four deliberate corruptions for every accepted UNSAT result.",
+      "why_high_information": "This completes the exact local-count-209 frontier with four small unsplit availability certificates and raises the strongest certified unrestricted local bound to L(v)>=210 without overstating it as a full K26 decision."
+    },
+    {
+      "artifacts": [
+        {"path": "artifacts/local_210_exact/manifest.json", "role": "dimensions and raw/compressed SHA-256 for all fourteen exact profile inputs"},
+        {"path": "experiments/E015-local-210-plan.md", "role": "preregistered projection and exact-color runs plus outcomes"}
+      ],
+      "commands": [
+        "python3 tests/test_local_210_reduction.py",
+        "python3 tests/test_local_210_exact_generator.py",
+        "python3 tests/test_local_210_coloring_generator.py"
+      ],
+      "expected_outputs_and_falsification": "The arithmetic audit must recover exactly fourteen profiles and each independent generator must reconstruct every clause. A model or checked UNSAT proof would change the frontier; UNKNOWN, timeout, or an incomplete trace is non-evidence.",
+      "id": "E015-LOCAL-210-EXACT",
+      "input_space": "Every local-count-210 degree profile and penalty allocation, first as a necessary projection and then as an exact fixed-center coloring formula.",
+      "mathematical_question": "Can local count 210 occur in an unrestricted balanced five-coloring of K26?",
+      "resource_cap": "Each selected branch was capped at 900 seconds wall, 890 seconds internal, and 4 GiB, with at most two solvers concurrently.",
+      "result": "The complete reduction and fourteen deterministic inputs are audited. Projection branches p55555 and p45556 and exact-color branch p55555 returned UNKNOWN. No certificate or coloring was produced, so L(v)>=211 is not claimed.",
+      "status": "PARTIAL-EXPERIMENTAL",
+      "verification_plan": "Independent profile enumeration and clause reconstruction; semantic checking for SAT; zero-RAT LRAT, two checkers, corruptions, and hash round trips for any UNSAT promotion.",
+      "why_high_information": "It establishes a reproducible exact local-count-210 frontier without treating three capped searches as evidence."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E016-unrestricted-minority-plan.md", "role": "exact orbit proof, formula dimensions, and failed-search hashes"}
+      ],
+      "commands": ["python3 tests/test_full_k26_minority_cnf.py"],
+      "expected_outputs_and_falsification": "The audit reconstructs the unrestricted base, no-isolate argument, orbit units, and at-most-65 encoding. Only a fully checked model or proof could be promoted.",
+      "id": "E016-UNRESTRICTED-MINORITY-ORBIT",
+      "input_space": "All balanced five-colorings of K26 after selecting a least-used color and a minimum-degree vertex.",
+      "mathematical_question": "Does the unrestricted K26 coloring exist after a safe least-color orbit selection?",
+      "resource_cap": "One 300-second wall / 290-second internal / 4-GiB Kissat run.",
+      "result": "UNKNOWN after 424872 conflicts; the incomplete trace is retained only by hash in the plan and is not a certificate.",
+      "status": "PARTIAL-EXPERIMENTAL",
+      "verification_plan": "Independent exact-clause audit, dual exhaustive checking of any model, and dual zero-RAT LRAT checking of any proof.",
+      "why_high_information": "It provides the first safe unrestricted minority-color orbit and a reproducible baseline for later exact-count branches."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E017-unrestricted-min-degree-plan.md", "role": "five exhaustive degree branches and run outcomes"}
+      ],
+      "commands": ["python3 tests/test_full_k26_min_degree_branch_cnf.py"],
+      "expected_outputs_and_falsification": "The branch union must equal the E016 orbit and all degree constraints must reconstruct exactly; UNKNOWN is non-evidence.",
+      "id": "E017-UNRESTRICTED-MIN-DEGREE",
+      "input_space": "The five possible minimum degrees one through five of the selected at-most-65-edge color graph.",
+      "mathematical_question": "Can exhaustive minimum-degree splitting decide the unrestricted minority orbit?",
+      "resource_cap": "Each attempted branch was capped at 300 seconds wall, 290 seconds internal, and 4 GiB.",
+      "result": "Degrees two, three, and four returned UNKNOWN. Degrees one and five have human eliminations; the remaining branches stay open.",
+      "status": "PARTIAL-EXPERIMENTAL",
+      "verification_plan": "Independent branch-clause reconstruction plus exact model/proof promotion policy.",
+      "why_high_information": "It isolates the genuinely unresolved minimum-degree branches and motivates the exact extremal edge-count approach."
+    },
+    {
+      "artifacts": [
+        {"path": "artifacts/full_k26_minority59/a1.cnf.xz", "bytes": 1857220, "sha256": "d5fb21cb87899b3f4eeb99689ebe42cb06d25acda4099b76fddc874f400fcc7a"},
+        {"path": "artifacts/full_k26_minority59/a2.cnf.xz", "bytes": 1796168, "sha256": "17790a1d2397196fa3e3b5fa9819fc328b72b5688ec244a5a4473f2a0333de63"},
+        {"path": "certificates/full_k26_minority59/a1.lrat.xz", "bytes": 115980, "sha256": "2a98e31708e14858f08acadb81e52377b5e6e5305b10b48b981b5d5130e6f637"},
+        {"path": "certificates/full_k26_minority59/a2.lrat.xz", "bytes": 194212, "sha256": "de59382c4ce544eaac06730de794b5df6ca1262a3a299e226a927ea559f4a739"},
+        {"path": "experiments/E018-unrestricted-minority59-result.md", "role": "complete scope and certificate record"}
+      ],
+      "commands": [
+        "python3 tests/test_full_k26_minority59_cnf.py",
+        "python3 tests/test_full_k26_minority59_certificates.py"
+      ],
+      "expected_outputs_and_falsification": "Both exhaustive equality representatives must regenerate and both zero-RAT LRATs must pass two checkers while all deliberate corruptions fail.",
+      "id": "E018-UNRESTRICTED-MINORITY59",
+      "input_space": "Every 59-edge color graph allowed by the Kang--Pikhurko maximum equality classification, reduced to two subset-size orbits.",
+      "mathematical_question": "Can a color class in an unrestricted balanced K26 coloring have 59 edges?",
+      "resource_cap": "Two 300-second / 4-GiB solver runs; proof conversion and checking bounded separately.",
+      "result": "Both exact full-color branches are certified UNSAT, corroborating the direct target-part contradiction. Every color class has at least 60 edges.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Independent extremal-template enumeration, exact clause reconstruction, zero-RAT conversion, two LRAT checkers, eight corruption rejections, and XZ hash round trips.",
+      "why_high_information": "This is the first certified unrestricted per-color edge lower bound beyond the imported extremal inequality."
+    },
+    {
+      "artifacts": [{"path": "experiments/E019-unrestricted-minority60-plan.md", "role": "exact degree-three/four branches and UNKNOWN outcome"}],
+      "commands": ["python3 tests/test_full_k26_minority60_cnf.py"],
+      "expected_outputs_and_falsification": "Both exact-count branches must reconstruct byte-for-byte; only a checked model or certificate is evidence.",
+      "id": "E019-UNRESTRICTED-MINORITY60",
+      "input_space": "All exact 60-edge color classes, split by minimum degree three or four.",
+      "mathematical_question": "Can direct exact-count branches exclude 60 edges?",
+      "resource_cap": "300 seconds wall / 290 seconds internal / 4 GiB per branch.",
+      "result": "Both branches returned UNKNOWN and supplied no evidence.",
+      "status": "PARTIAL-EXPERIMENTAL",
+      "verification_plan": "Independent formula composition and strict SAT/UNSAT promotion policy.",
+      "why_high_information": "It fixes the exhaustive degree scope used by the later successful structural reduction."
+    },
+    {
+      "artifacts": [{"path": "experiments/E020-unrestricted-minority60-critical-plan.md", "role": "criticality bridge, exact formulas, and UNKNOWN outcome"}],
+      "commands": ["python3 tests/test_full_k26_minority60_critical_cnf.py"],
+      "expected_outputs_and_falsification": "Every present edge must receive an exact private six-set in the formula; UNKNOWN is non-evidence.",
+      "id": "E020-MINORITY60-CRITICAL",
+      "input_space": "Every E019 branch strengthened by the proved deletion/recoloring criticality condition.",
+      "mathematical_question": "Does all-edge criticality make exact count 60 directly decidable?",
+      "resource_cap": "300 seconds wall / 290 seconds internal / 4 GiB per branch.",
+      "result": "Both branches returned UNKNOWN. The human deletion bridge survives and later became a premise of E027.",
+      "status": "PARTIAL-EXPERIMENTAL",
+      "verification_plan": "Independent selector-clause reconstruction and strict certificate/model validation.",
+      "why_high_information": "It extracts the key criticality invariant despite an unsuccessful direct search."
+    },
+    {
+      "artifacts": [{"path": "experiments/E021-unrestricted-minority60-fixed-witness-plan.md", "role": "safe fixed-witness orbit and UNKNOWN outcome"}],
+      "commands": ["python3 tests/test_full_k26_minority60_fixed_witness_cnf.py"],
+      "expected_outputs_and_falsification": "The fixed private witness must retain an orbit representative in each degree branch; solver non-results are not evidence.",
+      "id": "E021-MINORITY60-FIXED-WITNESS",
+      "input_space": "Every E020 critical coloring after fixing one incident private witness by relabeling.",
+      "mathematical_question": "Does a fixed private witness decide the exact-60 branches?",
+      "resource_cap": "300 seconds wall / 290 seconds internal / 4 GiB per branch.",
+      "result": "Both branches returned UNKNOWN and supplied no evidence.",
+      "status": "PARTIAL-EXPERIMENTAL",
+      "verification_plan": "Independent orbit-unit reconstruction and strict model/proof promotion.",
+      "why_high_information": "It validates a symmetry choice reused by later graph-only exploration."
+    },
+    {
+      "artifacts": [{"path": "experiments/E022-unrestricted-minority60-canonical-witness-plan.md", "role": "remaining-color canonicalization and logged UNKNOWN hashes"}],
+      "commands": ["python3 tests/test_full_k26_minority60_canonical_witness_cnf.py"],
+      "expected_outputs_and_falsification": "All fixed selector and first-occurrence clauses must reconstruct exactly; incomplete traces cannot be promoted.",
+      "id": "E022-MINORITY60-CANONICAL-WITNESS",
+      "input_space": "Every E021 orbit with a canonical witness selector and remaining-color first occurrences.",
+      "mathematical_question": "Does canonicalizing the exact-60 witness branches decide them directly?",
+      "resource_cap": "300 seconds wall / 290 seconds internal / 4 GiB per branch.",
+      "result": "Both branches returned UNKNOWN; only solver-log hashes are retained.",
+      "status": "PARTIAL-EXPERIMENTAL",
+      "verification_plan": "Independent exact-clause audit and strict evidence policy.",
+      "why_high_information": "It prevents repetition of a fully specified unsuccessful symmetry refinement."
+    },
+    {
+      "artifacts": [
+        {"path": "artifacts/minority60_graphs/d4_candidate_001.json", "bytes": 643, "sha256": "b8ebfb1f81820cfa2ed158a8b51c041eebaa5e5b253e70926c96385e3920750d"},
+        {"path": "experiments/E023-minority60-critical-graph-plan.md", "role": "graph-only search scope and checked model record"}
+      ],
+      "commands": ["python3 tests/test_minority60_critical_graph_cnf.py"],
+      "expected_outputs_and_falsification": "The graph-only formula is only a necessary structural search. SAT candidates are not colorings and a partial list is not exhaustive.",
+      "id": "E023-MINORITY60-CRITICAL-GRAPH",
+      "input_space": "Exact-60 critical color graphs with minimum degree three or four and one fixed private witness.",
+      "mathematical_question": "What graph structures survive before assigning the remaining four colors?",
+      "resource_cap": "60 seconds internal / 70 seconds wall / 2 GiB per branch.",
+      "result": "Degree three returned UNKNOWN. Degree four produced a checked structural model, three K5 components plus a C5 clique blow-up; no exhaustiveness was claimed.",
+      "status": "PARTIAL-EXPERIMENTAL",
+      "verification_plan": "Independent DIMACS audit and model checking; later structural proof and blocking certificate required for exhaustiveness.",
+      "why_high_information": "The checked candidate exposed the final graph later proved unique by E027/E028."
+    },
+    {
+      "artifacts": [
+        {"path": "artifacts/full_k26_minority60_candidate001/candidate001.cnf.xz", "bytes": 2136300, "sha256": "2d4ea3658ba89355e8b7063a23baec427ec3e92314e7b7aa7e2f25f05432f920"},
+        {"path": "certificates/full_k26_minority60_candidate001/candidate001.lrat.xz", "bytes": 293756, "sha256": "4fb5933925f28d1cab6f6e957e7b917eefd36670a44424461f813f889993c9bb"},
+        {"path": "experiments/E024-minority60-candidate-extension-result.md", "role": "complete certificate record"}
+      ],
+      "commands": [
+        "python3 tests/test_full_k26_fixed_minority_graph_cnf.py",
+        "python3 tests/test_minority60_recursive_certificates.py"
+      ],
+      "expected_outputs_and_falsification": "The exact candidate graph and all unrestricted remaining-color clauses must regenerate; the zero-RAT LRAT must pass two checkers and corruptions must fail.",
+      "id": "E024-MINORITY60-CANDIDATE-EXTENSION",
+      "input_space": "All assignments of the remaining four colors after fixing the E023 60-edge candidate as color zero.",
+      "mathematical_question": "Can the final candidate color graph extend to a balanced five-coloring?",
+      "resource_cap": "A 300-second / 4-GiB proof-producing run, followed by bounded conversion and checking.",
+      "result": "Certified UNSAT for the exact unrestricted extension of this graph. It becomes globally exhaustive only when combined with E027/E028.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Exact formula reconstruction, zero-RAT conversion, two LRAT checkers, corruptions, and compressed/raw hash round trips.",
+      "why_high_information": "It supplies the final remaining-color obstruction used by C-EDGE-002."
+    },
+    {
+      "artifacts": [{"path": "experiments/E025-minority60-degree4-k5-component-plan.md", "role": "two structural branches and UNKNOWN outcomes"}],
+      "commands": ["python3 tests/test_minority60_degree4_structure_cnf.py"],
+      "expected_outputs_and_falsification": "The two branches must cover every way a degree-four closed neighborhood fails to be a K5 component; UNKNOWN is non-evidence.",
+      "id": "E025-MINORITY60-DEGREE4-STRUCTURE",
+      "input_space": "Degree-four exact-60 critical graphs split into nonclique and clique-leak neighborhoods.",
+      "mathematical_question": "Must a minimum-degree-four vertex lie in an isolated K5?",
+      "resource_cap": "120 seconds internal / 130 seconds wall / 4 GiB per branch.",
+      "result": "Both branches returned UNKNOWN and supplied no evidence.",
+      "status": "PARTIAL-EXPERIMENTAL",
+      "verification_plan": "Independent branch-unit reconstruction and strict proof/model validation.",
+      "why_high_information": "It states the exact structural split later discharged arithmetically in E027."
+    },
+    {
+      "artifacts": [{"path": "experiments/E026-minority60-spoke-critical-plan.md", "role": "weaker spoke-critical branches and outcomes"}],
+      "commands": ["python3 tests/test_minority60_spoke_critical_cnf.py"],
+      "expected_outputs_and_falsification": "Only UNSAT of a weaker necessary branch could be promoted; a SAT relaxation model is not a critical graph or coloring.",
+      "id": "E026-MINORITY60-SPOKE-CRITICAL",
+      "input_space": "The E025 branches retaining private witnesses only on selected incident edges.",
+      "mathematical_question": "Can weaker spoke criticality settle the degree-three or noncomponent branches?",
+      "resource_cap": "120 seconds internal / 130 seconds wall / 4 GiB per branch.",
+      "result": "Degree three and nonclique returned UNKNOWN; clique-leak was SAT only as a deliberately weaker relaxation. All outcomes are non-evidence.",
+      "status": "PARTIAL-EXPERIMENTAL",
+      "verification_plan": "Independent relaxed-clause audit and explicit semantic scope checking.",
+      "why_high_information": "It rules out misinterpreting a relaxation model and motivates the successful exact arithmetic proof."
+    },
+    {
+      "artifacts": [{"path": "experiments/E027-minority60-recursive-reduction-result.md", "role": "complete recursive human reduction and independent finite audit"}],
+      "commands": ["python3 tests/test_minority60_recursive_reduction.py"],
+      "expected_outputs_and_falsification": "The audit must enumerate the degree-three allocation, all nine recursive degree-four allocations, every equality-template attachment case, and all 1540 pair-avoiding transversal checks.",
+      "id": "E027-MINORITY60-RECURSIVE-REDUCTION",
+      "input_space": "Every exact-60 edge-critical color graph on 26 vertices, recursively after isolated K5 deletion.",
+      "mathematical_question": "Does exact count 60 reduce exhaustively to the single E024 graph class?",
+      "resource_cap": "Deterministic finite audit under 10 seconds and 256 MiB; no solver search is a premise.",
+      "result": "Three isolated K5 components are forced and the remaining 11-vertex graph satisfies the E028 hypotheses. Combined with E028, exactly one graph class survives.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Human criticality, extremal, Brooks, and recursion proofs plus independent enumeration of every finite allocation and transversal case.",
+      "why_high_information": "It converts the failed direct exact-count searches into an exhaustive structural theorem."
+    },
+    {
+      "artifacts": [
+        {"path": "artifacts/residual11_classification/residual11.cnf.xz", "bytes": 16632, "sha256": "35ff826cc8740a7c032a30df9544a33c003cdd6fd707f5e1403501a5173a91a4"},
+        {"path": "certificates/residual11_classification/residual11.lrat.xz", "bytes": 215120, "sha256": "399d97fabfbbb0e94893ce63dae2061a0cbacf5d3c7215033c4a1c79a9afb596"},
+        {"path": "experiments/E028-residual11-classification-result.md", "role": "enumeration and certificate record"}
+      ],
+      "commands": [
+        "python3 tests/test_residual11_classification_cnf.py",
+        "python3 tests/test_minority60_recursive_certificates.py"
+      ],
+      "expected_outputs_and_falsification": "The independent enumerator must recover exactly the 300 fixed-neighborhood labels of the candidate orbit, and the orbit-blocking zero-RAT LRAT must pass both checkers with corruptions rejected.",
+      "id": "E028-RESIDUAL11-CLASSIFICATION",
+      "input_space": "Eleven-vertex, 25-edge, maximal triangle-free graphs with independence number and maximum degree at most five.",
+      "mathematical_question": "Is the final E027 residual uniquely the C5 blow-up with parts 1,2,3,3,2?",
+      "resource_cap": "Deterministic enumeration plus a 300-second / 2-GiB proof-producing run and bounded checking.",
+      "result": "Exactly 300 fixed-neighborhood labeled candidates form one orbit; a checked zero-RAT LRAT excludes every blocked alternative. Together with E027 and E024, every color class has at least 61 edges.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Independent direct enumeration, separate CNF construction, exact regeneration, two LRAT checkers, corruption rejection, and hash round trips.",
+      "why_high_information": "It closes the sole residual classification needed for the exact-60 theorem."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E029-minority61-recursive-reduction-plan.md", "role": "preregistered exact reduction and evidence policy"},
+        {"path": "experiments/E029-minority61-recursive-reduction-result.md", "role": "complete mathematical and certificate record"},
+        {"path": "artifacts/minority61_residual_graphs/k5_route_candidate_001.json", "bytes": 921, "sha256": "696192cac9656f5f837faa85436981f69f13d3a1d3962504ac5f2c076b8e5dc8"},
+        {"path": "artifacts/minority61_residual_graphs/k5_route_candidate_002.json", "bytes": 924, "sha256": "360e8314e203489b733f1e98757e587db5d434c4809c7eaea2f7e3e60b6bf22e"},
+        {"path": "artifacts/minority61_graphs/candidate_001.json", "bytes": 626, "sha256": "d8ae204703dba3f1d2cfc3f3914f421adda6fccefaa919c1030e753ec7a9b723"},
+        {"path": "artifacts/minority61_graphs/candidate_002.json", "bytes": 626, "sha256": "598e76394a8ca82e0bcf1c881455082a0d77b05ac00df885bb29e6ea344250f2"},
+        {"path": "artifacts/minority61_residual_classification/residual11.cnf.xz", "bytes": 19216, "sha256": "158d7708a1ea18c47e0ef9e8053a8bb77f679c95e548716b201d4371364d3819"},
+        {"path": "certificates/minority61_residual_classification/residual11.lrat.xz", "bytes": 336160, "sha256": "f9c89420f60dde5c9ef26f72eb3d0db5c9be95467aa0360d17fcdc2b97d062de"},
+        {"path": "artifacts/full_k26_minority61_candidates/candidate001.cnf.xz", "bytes": 2111568, "sha256": "c802396336b306362d1c1e06bcec7ed1bf8bdc8009d2ae8d65b958ea8e728d25"},
+        {"path": "certificates/full_k26_minority61_candidates/candidate001.lrat.xz", "bytes": 433172, "sha256": "b5a91ea0389bd46c3ee25b485e98e0510c5c572ac69e30c462ffb68b583985af"},
+        {"path": "artifacts/full_k26_minority61_candidates/candidate002.cnf.xz", "bytes": 2111440, "sha256": "911a51bf74a9e07455b9333853ff50743a8b99e49fa8d66e5d967e5df76b2ec3"},
+        {"path": "certificates/full_k26_minority61_candidates/candidate002.lrat.xz", "bytes": 254828, "sha256": "01d9c65216eb77ed0fcfee737757c6509c7b1775070ff0e048b95a7f82547559"}
+      ],
+      "commands": [
+        "python3 tests/test_minority61_recursive_reduction.py",
+        "python3 tests/test_minority61_triangle_residual_cnf.py",
+        "python3 tests/test_minority61_candidate_extension_cnf.py",
+        "python3 tests/test_minority61_certificates.py"
+      ],
+      "expected_outputs_and_falsification": "Every degree/allocation and equality attachment must be covered; the two residual orbits must be disjoint and exhaustive; both exact extensions and the residual blocking formula must regenerate; all three RUP-only LRATs must pass both checkers while deliberate corruptions fail.",
+      "id": "E029-MINORITY61-RECURSIVE-REDUCTION",
+      "input_space": "Every exact-61 independence-critical color graph on 26 vertices, recursively after forced clique deletion, followed by every unrestricted extension of the two final graph classes.",
+      "mathematical_question": "Can a hypothetical balanced coloring have a 61-edge color class?",
+      "resource_cap": "Deterministic arithmetic and orbit audits; 120-second exploratory residual searches; proof-producing runs below 300 seconds and 4 GiB; bounded conversion and checking.",
+      "result": "The exact reduction leaves two residual classes. A checked residual-classification LRAT proves exhaustiveness, and checked exact-extension LRATs exclude both. Every color class therefore has at least 62 edges; the full K26 instance remains open.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Human criticality, extremal, Turan, Dirac, and recursion proofs; independent allocation, transversal, semantic graph, physical-orbit, and clause audits; exact regeneration; two LRAT checkers; corruption rejection; compressed/raw hash round trips.",
+      "why_high_information": "It advances the unrestricted simultaneous color-class lower bound from 61 to 62 while preserving exact scope and isolates exact count 62 as the next frontier."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E030-minority62-critical-frontier-plan.md", "role": "preregistered exact reduction and evidence policy"},
+        {"path": "experiments/E030-minority62-critical-frontier-result.md", "role": "complete mathematical and certificate record"},
+        {"path": "artifacts/minority62_residual_graphs/k5_route_candidate_001.json", "bytes": 419, "sha256": "361445ca21e6c46c60579696312749d5a0e05345c0a27c4a9487a723ff46a7f0"},
+        {"path": "artifacts/minority62_residual_graphs/k5_route_candidate_002.json", "bytes": 419, "sha256": "1bf3e1a32f8c7e4a2182126a32c88061feba031ca60d7fb7bcc65a2534eeb6e1"},
+        {"path": "artifacts/minority62_residual_graphs/k5_route_candidate_003.json", "bytes": 416, "sha256": "486a1b840266f68440ff8148e09019ff2cc408b5f0d5d1adb64666cfe40995da"},
+        {"path": "artifacts/minority62_residual_graphs/k5_route_candidate_004.json", "bytes": 416, "sha256": "05048d855ee2e4b19cfc41703f7a40ab9b93218da6c06e7b8e28e70d29097527"},
+        {"path": "artifacts/minority62_graphs/candidate_001.json", "bytes": 876, "sha256": "ebf327dfa971cfbbc264efdf2d924c887563c81b3883643974c400174ccb9368"},
+        {"path": "artifacts/minority62_graphs/candidate_002.json", "bytes": 876, "sha256": "4049190f7da00f0ddb4b65cc98e8098835f5a49243c7f4b428a2391203ea2c49"},
+        {"path": "artifacts/minority62_graphs/candidate_003.json", "bytes": 868, "sha256": "ed3cb197c10da6517be08d5c23aa701cb481589d47b8f41dc1cb3e51eebab4d0"},
+        {"path": "artifacts/minority62_graphs/candidate_004.json", "bytes": 868, "sha256": "765393947425a042c90383eeeff83b07997c0b9bd109272491282bd2bc38ebfe"},
+        {"path": "artifacts/minority62_residual_classification/residual11.cnf.xz", "bytes": 61816, "sha256": "bc35ee639474d3ce06e9954cdc8af3642390ef0b0301429e242d114da2c0682f", "raw_bytes": 2764103, "raw_sha256": "a2003ca60b633cdc0856d63969fcc57e6f6e65bc39fa272d127ea812c432e720"},
+        {"path": "certificates/minority62_residual_classification/residual11.lrat.xz", "bytes": 1781328, "sha256": "84588ea0b002325f5dc01ce22cb7fa185fcb35b50d2dbd29571b460c9cf135b5", "raw_bytes": 13944180, "raw_sha256": "494b2dfbcf0cf40b0b20f69f07a5e10b52f518b25a8f18497cfdaced200576cc"},
+        {"path": "artifacts/full_k26_minority62_candidates/candidate001.cnf.xz", "bytes": 2122780, "sha256": "1bab0eb29ef24099ee9f1c118d9baab6376c1cdb2b107291dd67c6f4b0600a1f", "raw_bytes": 77568156, "raw_sha256": "96a0f8907aed23aa6e12d1cccbd047e414aef9114ff7f0683504d8fbfed4feaa"},
+        {"path": "certificates/full_k26_minority62_candidates/candidate001.lrat.xz", "bytes": 113708, "sha256": "db19cafc29d5e611c40ea16415208d7bed02317912f61fae7bc587e84edfe852", "raw_bytes": 8137120, "raw_sha256": "47566db36661fab70d47ec8554614d88dd7652f95c2ac9a2d4530ccb1e441dff"},
+        {"path": "artifacts/full_k26_minority62_candidates/candidate002.cnf.xz", "bytes": 2122780, "sha256": "c4bf93c4e1bc8cd830ff2005f49f41f2a55204ccd88d566fd37929c94b6e8022", "raw_bytes": 77568156, "raw_sha256": "7c076c1f601cf3ff5d87f9408eb39090fd42904327483c531af0436ca9c8ee2d"},
+        {"path": "certificates/full_k26_minority62_candidates/candidate002.lrat.xz", "bytes": 135244, "sha256": "059e4617c56d13c310eeb26fdd98ca028ee49a48ade7c60621a5abfe0cc9d2fe", "raw_bytes": 8137120, "raw_sha256": "f34aee501840c7ce45372ee6635cc7665bc8d742ccc4d20e5b914d4c4489b346"},
+        {"path": "artifacts/full_k26_minority62_candidates/candidate003.cnf.xz", "bytes": 2122772, "sha256": "f506fdee538d583154c0ce6f2718212291ca0dbae251248213405b1fc6f2c601", "raw_bytes": 77568156, "raw_sha256": "9fe9d28787dcaa622afde8aac738f577fd32c655f1813ca7ce754cbdf0dc28fd"},
+        {"path": "certificates/full_k26_minority62_candidates/candidate003.lrat.xz", "bytes": 204560, "sha256": "c20ec3196d2491efb6e2d888c97f665ddbe38467182c045ef0ec75dd081d4883", "raw_bytes": 8137120, "raw_sha256": "74d8dcb1e68b51ba6dc5d5307ba7b3d830a51a19d4e32711c0e924e8778b9900"},
+        {"path": "artifacts/full_k26_minority62_candidates/candidate004.cnf.xz", "bytes": 2122908, "sha256": "ccb40d3782a19d72c30126605e0751ab22814e73b46099de1e5ab1e0f84bd1da", "raw_bytes": 77568156, "raw_sha256": "2fd5cbf41af716fe3875634cc608b6639d21e20b8533e2cb1d5f5a2927ce9df0"},
+        {"path": "certificates/full_k26_minority62_candidates/candidate004.lrat.xz", "bytes": 292624, "sha256": "5a503cca49974447093a27d6b581a1a4536217fba89eaeb2d58dc71599860a36", "raw_bytes": 8137742, "raw_sha256": "24311e0810ddbc03de658f1b89f94afc5bcd10fb23137349a6197ffdf7cd33b2"}
+      ],
+      "certificate_generation": {
+        "solver": "official Kissat 4.0.4 with transformations disabled for LRAT conversion",
+        "converter": "drat-trim -U -L at commit 2e5e29cb0019d5cfd547d4208dca1b3ec290349f",
+        "rat_lemmas_in_every_core": 0,
+        "compression": "Python standard-library lzma, XZ format, preset 6"
+      },
+      "commands": [
+        "python3 tests/test_minority62_reduction.py",
+        "python3 tests/test_minority62_triangle_residual_cnf.py",
+        "python3 tests/test_minority62_candidate_extension_cnf.py",
+        "python3 tests/test_minority62_certificates.py"
+      ],
+      "expected_outputs_and_falsification": "Every degree/allocation and equality/slack attachment must be covered; the five critical-subgraph orders must fail; the four residual orbits must be disjoint and exhaustive; all exact extensions and the residual blocking formula must regenerate; all five RUP-only LRATs must pass both checkers while every deliberate corruption fails.",
+      "id": "E030-MINORITY62-CRITICAL-FRONTIER",
+      "input_space": "Every exact-62 independence-critical color graph on 26 vertices, recursively after forced clique deletion, followed by every unrestricted extension of the four final graph classes.",
+      "mathematical_question": "Can a hypothetical balanced coloring have a 62-edge color class?",
+      "resource_cap": "Deterministic arithmetic and orbit audits; 120-second exploratory searches; proof-producing runs below 300 seconds and 4 GiB; bounded conversion and checking.",
+      "result": "The exact reduction leaves four residual classes. A checked residual-classification LRAT proves exhaustiveness, and checked exact-extension LRATs exclude all four. Every color class therefore has at least 63 edges; the full K26 instance remains open.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Human criticality, extremal, Turan, Dirac, Kostochka--Yancey, attachment, and recursion proofs; independent arithmetic, template, semantic graph, physical-orbit, and clause audits; exact regeneration; two LRAT checkers; corruption rejection; compressed/raw hash round trips.",
+      "why_high_information": "It advances the unrestricted simultaneous color-class lower bound from 62 to 63 while preserving exact scope and leaves only least-color counts 63 through 65."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E031-minority63-critical-frontier-plan.md", "role": "preregistered exact reduction and evidence policy"},
+        {"path": "experiments/E031-minority63-critical-frontier-result.md", "role": "complete mathematical and certificate record"},
+        {"path": "artifacts/minority63_residual_graphs/k4_route_candidate_001.json", "bytes": 394, "sha256": "5a65ed52dca608b28abdabbc1578decefe1f6e5b6151983c6853e9725e642cf2"},
+        {"path": "artifacts/minority63_residual_graphs/k5_route_candidate_001.json", "bytes": 262, "sha256": "5c7355101f6c1b0314041868aa65af056f0216942e06318503714a59ead96db8"},
+        {"path": "artifacts/minority63_residual_graphs/k5_route_candidate_002.json", "bytes": 262, "sha256": "e86269eca99d20d306a35d9960842a32b443af67b3629440907c5fec5d4c2fe1"},
+        {"path": "artifacts/minority63_residual_graphs/k5_route_candidate_003.json", "bytes": 262, "sha256": "d5d8aa9c7f8c6f4952fc5e9cdf5bc9b17bee930cdf43d32d0d671db3bb170b13"},
+        {"path": "artifacts/minority63_residual_graphs/k5_route_candidate_004.json", "bytes": 262, "sha256": "43e8d39edf2a1c97698a8e77da4b9cdfee37704f3466e5746a444a21b0f182e1"},
+        {"path": "artifacts/minority63_residual_graphs/k5_route_candidate_005.json", "bytes": 261, "sha256": "0a8502c749a38f1a494a9ed9832351f9d91d9eef600a161feeee298baf30e365"},
+        {"path": "artifacts/minority63_graphs/candidate_001.json", "bytes": 644, "sha256": "c94519c45d21e94766b621bb283541ad427ff2704229cce498a0c19a503956c6"},
+        {"path": "artifacts/minority63_graphs/candidate_002.json", "bytes": 425, "sha256": "ba9cf534b06a5af27dacab0710701316fe65b7face5fc49d13a3ac8658eb8ec6"},
+        {"path": "artifacts/minority63_graphs/candidate_003.json", "bytes": 425, "sha256": "01521bcd6cef09a5c36269cf2414fc7cd5b46442c37bbba8bd0a86153780797e"},
+        {"path": "artifacts/minority63_graphs/candidate_004.json", "bytes": 425, "sha256": "753d58159b818edc9c0b05972179827a6ba0d634801ccb1e75c3fa1ff01310ba"},
+        {"path": "artifacts/minority63_graphs/candidate_005.json", "bytes": 425, "sha256": "c64bb1770cd0c78e3452e6dd94d151213449139b6c002fb28efede0eceaf0cd4"},
+        {"path": "artifacts/minority63_graphs/candidate_006.json", "bytes": 425, "sha256": "bf95032f56dbc61a0c8e7d335e6bc6748d82ca88c81c1305a2aab1d78dd1e6a7"},
+        {"path": "artifacts/minority63_q16_ore_catalog.json", "bytes": 1983, "sha256": "4ce8ecf036d6686c0b8af26c762877896b2bbcab41cee96fea09474ebb87ff48"},
+        {"path": "artifacts/minority63_certificates/component_k5_c10_c11.cnf.xz", "bytes": 2207672, "sha256": "43b6d4722636cff1c7e17d1ad8102c8b23db2ed551d46cd5e60bf7e1613cbfaf", "raw_bytes": 78036194, "raw_sha256": "111b0b851ea402cb84a2f210230c7f5f8a58ec69c5735a1cf256bdd1c04f0b4e"},
+        {"path": "certificates/minority63/component_k5_c10_c11.lrat.xz", "bytes": 331096, "sha256": "af05108692251b081f90dd4895af88c07b96f180cdf50ead975dffe6147de53f", "raw_bytes": 9364145, "raw_sha256": "8d4705778a37190c3d3a3e4aacee7454daf008932266c14cfbff65b98b3382a6"},
+        {"path": "artifacts/minority63_certificates/residual12_d3.cnf.xz", "bytes": 23056, "sha256": "879966f85ac8651b9ece0287ef71f3facff79c1c2042a097cf5cc45e42fa39e4", "raw_bytes": 319141, "raw_sha256": "3eaeebdb2551603e76a9126fcd855ff80755595ce245c9f405f92e3d5b99592f"},
+        {"path": "certificates/minority63/residual12_d3.lrat.xz", "bytes": 2196876, "sha256": "ef05d1461bdd51d2f987af80d784bed202fe2c6ec201ed03ee577c7978327514", "raw_bytes": 9394408, "raw_sha256": "7532b76803f09a1f6ca201bc1ac5e67147d0cda3406c66550e18e6ee7947394c"},
+        {"path": "artifacts/minority63_certificates/residual12_d4.cnf.xz", "bytes": 26460, "sha256": "d4b7790d4655126b8fd37cb1314fab02fa8de5ea0e35f6e31858c1afc35185b4", "raw_bytes": 417398, "raw_sha256": "c65edd6eeeff35fdf40d8ba627184bed6aa23ab0ff899cf9802fc294764f4743"},
+        {"path": "certificates/minority63/residual12_d4.lrat.xz", "bytes": 2135688, "sha256": "6d638d0240c2bfd71659967787907e96baea91af21a0334a838f0f80dea36771", "raw_bytes": 9142081, "raw_sha256": "88bb4697f8478c7e4837a0cf849d8c884825e94f5da0ec0221a1a461c5f81fa6"},
+        {"path": "artifacts/minority63_certificates/candidate001.cnf.xz", "bytes": 2123436, "sha256": "e2c6fd87edd16d2ab9e3e5701de58e29312ea26696b8f09ee818137f0ffe1d1d", "raw_bytes": 77568155, "raw_sha256": "74b0f86476c9f82552289257a096fa83f3d252d0ae8a8edf7ef15de875dce1c4"},
+        {"path": "certificates/minority63/candidate001.lrat.xz", "bytes": 163852, "sha256": "44acd855daff77345a4896e1bcc09c34e24ecfda3c64cd4e53aa4e5dea2b27bb", "raw_bytes": 8137423, "raw_sha256": "ab2bea4eba8fe59988101dd832682fdfa3a97f1811d00839320678e96ad15b51"},
+        {"path": "artifacts/minority63_certificates/candidate002.cnf.xz", "bytes": 2122744, "sha256": "bd5a39285386bc34756f2c23536f1713435365ed3be7545c7de51744a8f61ed9", "raw_bytes": 77568155, "raw_sha256": "67c2bb0368e62fbb0285610d3ebac29fab6374c2b7a172ddacf904079411b134"},
+        {"path": "certificates/minority63/candidate002.lrat.xz", "bytes": 207696, "sha256": "068bc5c72f2d244f7df01a60747fab52ea5beaabd45d093c528bac0be3d8bafd", "raw_bytes": 8137120, "raw_sha256": "7aaffa95a8257cd797e521e7f5bf0df3829c487027eec4a83f148c76504f3d6c"},
+        {"path": "artifacts/minority63_certificates/candidate003.cnf.xz", "bytes": 2122704, "sha256": "219d5fee695ad49893d9cab6b1b4d2f504693048ee0d48bb5530d62643f8129c", "raw_bytes": 77568155, "raw_sha256": "c6047b352dbc9a893dee61f5c6ee012587c75d50038b63496f31b59c479e8c50"},
+        {"path": "certificates/minority63/candidate003.lrat.xz", "bytes": 207696, "sha256": "41eec771c714cb6f3f8a5746b331f13c830d9dfe29b5e2028de56f5840cab189", "raw_bytes": 8137120, "raw_sha256": "a6f7ea71ecfa03594b7fe6970a839ea7f3fcf3ac3cde62337cccb73a262ae4f8"},
+        {"path": "artifacts/minority63_certificates/candidate004.cnf.xz", "bytes": 2122716, "sha256": "29f1efde76ab9d86894250f98cc04284dcc2768a43da980edd6cf58bc6e23d63", "raw_bytes": 77568155, "raw_sha256": "5484ce875bded082474fb03366c2c5e115cf7d387a8a6b9e3fa49991570da9fd"},
+        {"path": "certificates/minority63/candidate004.lrat.xz", "bytes": 268840, "sha256": "57e7d6df0894f5fc4ff272dbac2a03b4e5a1f0842308497774b9e824ab669ced", "raw_bytes": 8137423, "raw_sha256": "7b7eb4d7ab399bec11803a340915901ea39eee1eae440c11bbbb55955d7fb3fd"},
+        {"path": "artifacts/minority63_certificates/candidate005.cnf.xz", "bytes": 2159888, "sha256": "3d68d97410965fa8600af18e2f03528906fabc61cfaa93ccaf432a2e6391077b", "raw_bytes": 77568155, "raw_sha256": "52c29cc2a51e345193966ef88c255436fa1fedfad0647ac9ee829b6f94272776"},
+        {"path": "certificates/minority63/candidate005.lrat.xz", "bytes": 156604, "sha256": "14acb3efa7836187e31076a79cadcaa417a1a66cea00cd085397127ffb663191", "raw_bytes": 8137742, "raw_sha256": "087392f9e61f4639520573ee55da8e9904b5a5a4cdb17b20a270973685c7843f"},
+        {"path": "artifacts/minority63_certificates/candidate006.cnf.xz", "bytes": 2122884, "sha256": "6e995da503b24cab8c56ed93ae70700d07d0f77a74cc7d8f20c275bba786aadf", "raw_bytes": 77568155, "raw_sha256": "f609bcf3aeed835dd48ee91edf44a2a24db1a2b2b298225235b06312ed67e9a4"},
+        {"path": "certificates/minority63/candidate006.lrat.xz", "bytes": 261560, "sha256": "2f8798a0fe9cc3f7f3e0f2b197941e630b4ba743842b7be88131c10e08ce1906", "raw_bytes": 8138494, "raw_sha256": "a510a3952984e8793ac5ee5c1f3cc562291adc35adbacab7edeada46c15ea084"},
+        {"path": "artifacts/minority63_certificates/residual11_d2.cnf.xz", "bytes": 17060, "sha256": "a62eeecb4442452d679494d8a3f745c04540e3e2de090609809c54784873537b", "raw_bytes": 165992, "raw_sha256": "2ab17984f74a3dd0439a085c7bf03eaea61fef013b23c33291641cb3cbaae491"},
+        {"path": "certificates/minority63/residual11_d2.lrat.xz", "bytes": 25008, "sha256": "774fca127090f3aa0058f5921722ab9b2f6ad8695d41aa2f4cd6d613a03eb99c", "raw_bytes": 148051, "raw_sha256": "53aa6cfd11c0c45109250d91de7ea023857059df606baa9261c506f50389cf10"},
+        {"path": "artifacts/minority63_certificates/residual11_d3.cnf.xz", "bytes": 136708, "sha256": "7225c5b0ca970e0a553dbaf7be21db13c22d8548aed7a555e49e399ab082e34a", "raw_bytes": 4707361, "raw_sha256": "a9536e4ff97c4e3b265711635f598cf16335ad7954a772ab9724e240cc559385"},
+        {"path": "certificates/minority63/residual11_d3.lrat.xz", "bytes": 22200376, "sha256": "c9b71186c12e6fd9500178fc4d481ffb46950bdd4f2131e6caa3b419b05046db", "raw_bytes": 94721479, "raw_sha256": "1c2c25ed3cbd1520780687393ce4e7f7e660c019d2c1f7f5653ba7b104f13ce8"},
+        {"path": "artifacts/minority63_certificates/residual11_d4.cnf.xz", "bytes": 52516, "sha256": "c608f465261dbf5c5fbf223b12cef26b183bb220931c67cd38a19b6f10e497e7", "raw_bytes": 1731222, "raw_sha256": "dea109f375838f3127fd1f7041217d2b0d62c3c7eb7d38b51d93c461b6bf717a"},
+        {"path": "certificates/minority63/residual11_d4.lrat.xz", "bytes": 2759304, "sha256": "e86c08c324a1b088240dd3b4ee07a1e24b7fdf3f1d4210993edbc8e3e65e39b9", "raw_bytes": 13733830, "raw_sha256": "95628430d522bcb82dac12cf64d027d098c3008ab376f04ec3b126b72abe0d8f"},
+        {"path": "artifacts/minority63_certificates/q16_ore_extension.cnf.xz", "bytes": 2145036, "sha256": "074ebd604f33c6951dc72919915af0cde42038007779a8ce45e6161f25ef2da6", "raw_bytes": 77786615, "raw_sha256": "83707a0c46e24697ae7e4589612b08a38393ae5448c8ea22f060c3bbf0d0c6b4"},
+        {"path": "certificates/minority63/q16_ore_extension.lrat.xz", "bytes": 186840, "sha256": "3b69e30abb4067994732495fb48e20dff44da4173ce4e65eef26a448d0397358", "raw_bytes": 8306033, "raw_sha256": "6be3d182cc47ec2d8afa2da09cd4b5a53226c5d2925634fc6509a64d0c7cb109"}
+      ],
+      "certificate_generation": {
+        "solver": "official Kissat 4.0.4 with proof-compatible transformations disabled",
+        "converter": "drat-trim -U -L at commit 2e5e29cb0019d5cfd547d4208dca1b3ec290349f",
+        "rat_lemmas_in_every_core": 0,
+        "compression": "Python standard-library lzma, XZ format, preset 6"
+      },
+      "commands": [
+        "python3 tests/test_minority63_reduction.py",
+        "python3 tests/test_minority63_component_family_cnf.py",
+        "python3 tests/test_minority63_critical_component_family_cnf.py",
+        "python3 tests/test_minority63_refined_family_cnf.py",
+        "python3 tests/test_minority63_min_degree_family_cnf.py",
+        "python3 tests/test_minority63_k4_k5_k5_family_cnf.py",
+        "python3 tests/test_minority63_all_color_lower_cnf.py",
+        "python3 tests/test_minority63_residual12_cnf.py",
+        "python3 tests/test_minority63_residual11_cnf.py",
+        "python3 tests/test_minority63_candidate_extension_cnf.py",
+        "python3 tests/test_minority63_q16_critical_family_cnf.py",
+        "python3 tests/test_minority63_q16_graph_cnf.py",
+        "python3 tests/test_minority63_q16_ore_extension_cnf.py",
+        "python3 tests/test_minority63_certificates.py"
+      ],
+      "expected_outputs_and_falsification": "Every degree/allocation, physical attachment, component recursion, and critical-core order must be covered; the residual-12, residual-11, and 6-Ore catalogs must be exhaustive; all exact extensions and the variable component family must regenerate; all 13 RUP-only LRATs must pass both checkers while every deliberate corruption fails.",
+      "id": "E031-MINORITY63-CRITICAL-FRONTIER",
+      "input_space": "Every exact-63 independence-critical color graph on 26 vertices, recursively after every proved component deletion, followed by every unrestricted extension of the variable component family, six stored small-residual classes, and all 48 final 6-Ore classes.",
+      "mathematical_question": "Can a hypothetical balanced coloring have a 63-edge color class?",
+      "resource_cap": "Thirty seconds and 512 MiB for deterministic arithmetic; 120 seconds and 4 GiB for each discovery search; 300 seconds and 4 GiB for any proof-producing branch.",
+      "result": "The exact reduction leaves one variable component family, one residual-12 class, five residual-11 classes, and 48 final order-16 6-Ore classes. Checked catalog and exact-extension LRATs exclude all cases. Every color class therefore has at least 64 edges; the full K26 instance remains open.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Human criticality, extremal, Turan, Dirac, Kostochka--Yancey equality, attachment, critical-core, and recursion proofs; independent arithmetic, semantic graph, DHGO composition, exact isomorphism, physical-orbit, and clause audits; exact regeneration; two LRAT checkers; corruption rejection; compressed/raw hash round trips.",
+      "why_high_information": "It advances the unrestricted simultaneous color-class lower bound from 63 to 64 while preserving exact scope and leaves only least-color counts 64 and 65."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E032-minority64-critical-frontier-plan.md", "role": "preregistered exact reduction and evidence policy"}
+      ],
+      "commands": [],
+      "expected_outputs_and_falsification": "The deterministic audit must enumerate every exact degree/allocation and physical attachment orbit before any residual formula is promoted. Any omitted branch, invalid inherited criticality, unchecked residual, unsafe use of the remaining-color excess sum five, raw solver-only UNSAT, or exact extension survivor falsifies a promoted exclusion.",
+      "id": "E032-MINORITY64-CRITICAL-FRONTIER",
+      "input_space": "Every exact-64 independence-critical color graph on 26 vertices, with every recursively inherited residual family and the exact unrestricted distribution of the other four color counts.",
+      "mathematical_question": "Can a hypothetical balanced coloring have a 64-edge color class?",
+      "resource_cap": "Sixty seconds and 1 GiB for deterministic arithmetic; 180 seconds and 4 GiB for each discovery search; 300 seconds and 4 GiB for any proof-producing branch.",
+      "status": "PARTIAL-EXPERIMENTAL",
+      "verification_plan": "Fresh human and independent arithmetic/template audits first; semantic graph validation, exhaustive orbit coverage, exact unrestricted extension, dual LRAT checking, adversarial corruptions, and hash round trips for any promoted machine branch.",
+      "why_high_information": "Only least-color counts 64 and 65 remain after E031, and exact 64 retains the recoloring-to-criticality bridge while forcing the other-color excesses above 64 to sum to five."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E033-external-fixed-cases-audit-plan.md", "role": "preregistered independent source and proof audit"},
+        {"path": "experiments/E033-external-fixed-cases-audit-result.md", "bytes": 9463, "sha256": "ae45e60c3c0c166065cdb602cf4eb380d86dbda9a4e6a8130d81eb7238ff0d5f", "role": "complete source, theorem, and line-by-line proof audit"},
+        {"path": "artifacts/external_r5_audit/source_snapshot.json", "bytes": 1293, "sha256": "40f0a215414941acb9e0f7aa5d65db9bfd1f1db0d519d97cbc8ac1c0c663045a"},
+        {"path": "artifacts/external_r5_audit/build_receipt.json", "bytes": 1007, "sha256": "44613e11c1744e19ea48345bacff851cd7e7b43764fbbcdde7571b755ae68d55"},
+        {"path": "artifacts/external_r5_audit/trianglefree10.g6", "bytes": 121720, "sha256": "162cd507b93e74307ed9e88052da7bfb6f68e6cfeae6ccd2254c949c84ce0214"},
+        {"path": "artifacts/external_r5_audit/trianglefree10.g6.xz", "bytes": 14616, "sha256": "aa8c9ba9e9df4d07231cb1f5d72003664bbb577e1b56ac6af246fac526223a1b"},
+        {"path": "artifacts/external_r5_audit/trianglefree11_e20_30.g6", "bytes": 73836, "sha256": "ce477f7ec1b99986993dd8386b7484dfd6378181eb29c292cf4b1a67157b7e61"},
+        {"path": "artifacts/external_r5_audit/trianglefree11_e20_30.g6.xz", "bytes": 9544, "sha256": "1e8bff29631a7a3bb957aa0349e0138622c42917fde9b8a415bf387bc10e7e2e"},
+        {"path": "tests/test_external_r5_proof_audit.py", "bytes": 17294, "sha256": "273478d11c6ca37d2212eeebb79869649058e248229eb44a1d1645c7a8141eb4", "role": "independent graph6, arithmetic, equality-template, cover, and affine checker"}
+      ],
+      "commands": [
+        "python3 tests/test_external_r5_proof_audit.py"
+      ],
+      "expected_outputs_and_falsification": "Pin and hash the external revision; rebuild and read the r=5 source; recheck every imported hypothesis, arithmetic row, endpoint classification, equality implication, and recursive branch; independently exhaust the order-10 and order-11 triangle-free catalogs. Any source mismatch, incomplete catalog, false lemma, missing branch, or unchecked dependency prevents promotion.",
+      "id": "E033-EXTERNAL-FIXED-CASES-AUDIT",
+      "input_space": "The complete r=5 manuscript and dependency graph at a pinned commit of Robby955/erdos-617-fixed-cases, plus every nonisomorphic triangle-free endpoint graph used by its order-10 and order-11 lemmas.",
+      "mathematical_question": "Does the external repository contain a complete, independently reproducible proof of the unrestricted r=5 case of Erdos Problem 617?",
+      "resource_cap": "Thirty minutes for deterministic source/dependency audit; 120 seconds and 1 GiB per nauty catalog; 180 seconds and 4 GiB for discovery-only SAT; 600 seconds and 6 GiB for any proof-producing branch.",
+      "result": "The pinned r=5 source compiles cleanly. Full source and primary-dependency audit found no gap. Independent nauty catalogs and a separate semantic checker confirm the order-10 and order-11 endpoints; all arithmetic, 20 Kang--Pikhurko equality templates, cover facts, and 177,100 affine six-sets pass. The unrestricted r=5 claim is a CANDIDATE-RESOLUTION, not machine-verified or externally reviewed; the all-r conjecture remains open.",
+      "status": "CANDIDATE-RESOLUTION",
+      "verification_plan": "Full source reading and obligation ledger; primary-source theorem audit; independent arithmetic checks; hash-pinned nauty enumeration with a separate semantic checker; exact certified treatment of any remaining finite branch; clean rebuild and adversarial counterexample search.",
+      "why_high_information": "A valid unrestricted r=5 proof would immediately supersede the exact-64 search and establish the project's first unresolved fixed case; a precise gap would prevent wasted reliance on an unreviewed claim."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E034-r5-lean-formalization-plan.md", "bytes": 3479, "sha256": "b93e299072118a4f0030500957b2588b83aef72e186351862ec852fbe52168a6", "role": "preregistered kernel-verification plan"},
+        {"path": "experiments/E034-r5-lean-formalization-result.md", "bytes": 5262, "sha256": "e4152fdeda3be99215673a9d07946272641dfc91e3973388a8dd7d097f6e1578", "role": "exact partial theorem boundary, trust audit, and remaining obligations"},
+        {"path": "artifacts/e034_lean_build.log", "bytes": 4761, "sha256": "e51059e2721316630c0bc28783e0a013092d4c4c0c0e8eab30ce4c7164d6b39e", "role": "warning-clean build and 43-theorem assumption audit"},
+        {"path": "formal/lean/lake-manifest.json", "bytes": 3142, "sha256": "acfc19d483c350eb6dad0e0d02681ccc167db7e44446e3c3f4ef74067d2b4267", "role": "exact transitive dependency lock"},
+        {"path": "formal/lean/Erdos617.lean", "bytes": 213, "sha256": "de886f7b5dc1d64d9846179e670b633e088cb2a06dd8f75b246001b28d454509"},
+        {"path": "formal/lean/Erdos617/Basic.lean", "bytes": 6925, "sha256": "ec5e2e7e5f126aed541b0c61cbe88c335e2618f0e0188a73b610dbd52ac83712"},
+        {"path": "formal/lean/Erdos617/Affine25.lean", "bytes": 4042, "sha256": "1bf67a1f939fa500424def09fc4cbbd46fe4821f5d9276547fcbb3aac2b34551"},
+        {"path": "formal/lean/Erdos617/ColorComplements.lean", "bytes": 3131, "sha256": "4f8fe0dfb56d29d6e922eb1276f57c9fbc84453df76bcfd8b3f479771e09bc5a"},
+        {"path": "formal/lean/Erdos617/LocalBounds.lean", "bytes": 11684, "sha256": "dba6e8358589d5e488e77ab02f4d9d1ade1876aa3628e9bf1c493178ab8709ff"},
+        {"path": "formal/lean/Erdos617/TuranBase.lean", "bytes": 2810, "sha256": "56860b4860d1388bef9a377ee7dc311e2d50938dd1922f32e8c28022b02566f4"},
+        {"path": "formal/lean/Erdos617/IsolatedBase.lean", "bytes": 3835, "sha256": "adc51fb7e05e3fde6e4b08253a230a06b49d2880eb7c281f88efe3809ac7af03"},
+        {"path": "formal/lean/Erdos617/Audit.lean", "bytes": 2807, "sha256": "8a94bfa74087c41a22a05524cf718688a018cff4f18ee934e6a1217e0ab503dd"}
+      ],
+      "artifact_scope_note": "The E034 source hashes are the historical snapshot at git commit 3018d7898b7af4e747cd493ac26e22c21b2a917f. E035 supersedes the hashes of live files it extends; the E034 result and build log remain unchanged historical artifacts.",
+      "commands": [
+        "cd formal/lean && lake exe cache get",
+        "cd formal/lean && lake build",
+        "cd formal/lean && lake env lean Erdos617/Audit.lean"
+      ],
+      "expected_outputs_and_falsification": "A pinned Lean/mathlib project; compiling modules for the exact statement, color-graph bridge, structural lemmas, imported-theorem replacements, endpoint classifications, final contradiction, and affine lower construction; a clean build and empty unexpected-axiom audit. Any placeholder, new axiom, unsafe computation, stronger hidden hypothesis, missing branch, dependency mismatch, or clean-build failure prevents promotion.",
+      "id": "E034-R5-LEAN-FORMALIZATION",
+      "input_space": "The complete E033 obligation ledger for the unrestricted five-coloring of K26, including the specialized Brooks and Kang--Pikhurko dependencies and all finite endpoints.",
+      "mathematical_question": "Can the independently audited unrestricted r=5 candidate proof be checked by the Lean kernel without placeholders or unproved imported assumptions?",
+      "resource_cap": "Thirty minutes and 8 GiB for toolchain/cache setup; ten minutes and 8 GiB per ordinary module build; thirty minutes and 12 GiB for any finite kernel reduction before redesign.",
+      "result": "PARTIAL-CERTIFIED foundation only: the exact statement and graph bridges, affine K25 construction, local one-to-eleven bound, chromatic-product reduction, Turan 55-edge bound, and isolated-vertex exclusion are kernel-checked. Brooks, Kang--Pikhurko, all later obstruction layers, and the final K26 contradiction remain absent, so fixed r=5 remains CANDIDATE-RESOLUTION and the all-r problem remains OPEN.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Pin mathlib v4.32.0 and its exact manifest; formalize the theorem statement and bridges first; prove rather than assume missing Brooks/Kang--Pikhurko content; check finite endpoints only through kernel-checked bridges; audit exported theorem axioms and rebuild cleanly.",
+      "why_high_information": "E033 found no gap, so the sole barrier between the r=5 candidate and a machine-verified fixed-case milestone is a complete checked proof chain."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E035-r5-initial-structural-formalization-plan.md", "role": "preregistered structural-formalization plan"},
+        {"path": "experiments/E035-r5-initial-structural-formalization-result.md", "role": "exact formal scope and audit boundary"},
+        {"path": "artifacts/e035_lean_build.log", "bytes": 7594, "sha256": "3e1986b89a7b6d8cbafc79868d6ef18867937c478d621e5b978cd53f6d125b67"},
+        {"path": "formal/lean/Erdos617/NeighborhoodAccounting.lean", "sha256": "98bcd9810f9f3f6d05fa9ab71762fee35abee4c5fbb2268c53d35f55be0925f5"},
+        {"path": "formal/lean/Erdos617/DegreeReduction.lean", "sha256": "ea100b36d80f381c14987d4d4484ed39a24f65d7e3e35e59b6dcf00007c859e2"},
+        {"path": "formal/lean/Erdos617/Audit.lean", "sha256": "07af59c3f0f22f7ed2da3e25b1fbe9483a2e433c94df023276f02d607251751a"},
+        {"path": "formal/lean/Erdos617.lean", "sha256": "c640ce6ff37681cb5d440f27755dfc81935d0c337649b11eedc6349d3b2c9f2f"}
+      ],
+      "commands": [
+        "python3 repro/run_e035_lean_audit.py --project /tmp/erdos617-e035-clean-final4 --lake /tmp/erdos617-elan/bin/lake --elan-home /tmp/erdos617-elan --log artifacts/e035_lean_build.log",
+        "rg -n '\\bsorry\\b|\\badmit\\b|^axiom\\b|^unsafe\\b|native_decide|run_tac' formal/lean"
+      ],
+      "expected_outputs_and_falsification": "Kernel-checked neighborhood accounting, equality structure, and the special Brooks consequence; ideally the full least-color degree interval after a proved non-partite extremal dependency. Any count mismatch, hidden theorem assumption, placeholder, unsafe computation, unexpected axiom, or clean-build failure prevents certification.",
+      "id": "E035-R5-INITIAL-STRUCTURAL-FORMALIZATION",
+      "input_space": "All finite simple graphs and, at the final specialization, every least color graph of a hypothetical balanced five-coloring of K26.",
+      "mathematical_question": "Can the manuscript's initial minimum-degree reduction be brought into the Lean kernel without assuming Brooks or Kang--Pikhurko?",
+      "resource_cap": "Ten minutes and 8 GiB per ordinary module build; thirty minutes and 12 GiB for a finite kernel computation before redesign.",
+      "result": "PARTIAL-CERTIFIED: exact neighborhood accounting, degree-five admissibility consequences, isolated-clique equality, colorability bridge, and the 5-regular handshake reduction are kernel-checked. The degree-at-most-four theorem still takes the finite special-Brooks statement as an explicit hypothesis; Kang--Pikhurko and the later proof remain absent. A clean 1,285-job build and all 64 exported-theorem queries passed with only propext, Classical.choice, and Quot.sound.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Formal double counting from graph edge sets; prove the needed Brooks special case locally; isolate Kang--Pikhurko as an explicit unresolved dependency until proved; axiom audit and fresh-directory build.",
+      "why_high_information": "This is the first missing structural layer in the independently audited proof and cleanly separates elementary counting, Brooks, and the harder Kang--Pikhurko dependency."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E036-r5-five-regular-brooks-certificate-plan.md", "role": "preregistered finite-certificate plan"}
+      ],
+      "commands": [
+        "python3 tests/test_r5_five_regular_brooks_cnf.py",
+        "kissat --time=590 [RUP-oriented disabled transformations] /tmp/erdos617-e036.cnf /tmp/erdos617-e036.drat"
+      ],
+      "expected_outputs_and_falsification": "An exact graph-only CNF and a RUP-only LRAT proving that no 26-vertex graph is simultaneously 5-regular, independent-six-free, and K6-free. Any unsafe orbit, encoding mismatch, valid model, raw solver-only result, essential RAT step, checker disagreement, accepted corruption, or hash mismatch prevents certification.",
+      "id": "E036-R5-FIVE-REGULAR-BROOKS-CERTIFICATE",
+      "input_space": "Every simple 5-regular graph on 26 vertices, modulo the safe relabelling that fixes the five neighbors of vertex zero.",
+      "mathematical_question": "Can the exact finite consequence of Brooks needed by the r=5 proof be certified without assuming general Brooks's theorem?",
+      "resource_cap": "600 seconds and 6 GiB for one proof-producing Kissat run; 1,800 seconds and 12 GiB for proof conversion and checking.",
+      "result": "The exact 3,835-variable, 473,771-clause formula passed the independent audit. Kissat returned UNKNOWN at 590 seconds; the incomplete trace was deleted. No satisfiability or unsatisfiability claim is made.",
+      "status": "PARTIAL-EXPERIMENTAL",
+      "verification_plan": "Independent formula reconstruction and truth-table audit; semantic SAT validation; zero-RAT DRAT-to-LRAT conversion; two independent LRAT checkers; corruption rejection; exact regeneration and hash round trips.",
+      "why_high_information": "This removes the first named external theorem from the E033 proof chain using a small exact finite obligation, while leaving the harder Kang--Pikhurko and later layers honestly separate."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E037-r5-brooks-neighborhood-split-plan.md", "role": "preregistered exhaustive neighborhood-orbit split"}
+      ],
+      "commands": [
+        "python3 tests/test_r5_brooks_neighborhood_branch_cnf.py"
+      ],
+      "expected_outputs_and_falsification": "Exactly 26 independently reconstructed neighborhood isomorphism branches and checked certificates for every branch. An omitted orbit, unsafe quotient, wrong unit, SAT model, UNKNOWN branch, raw solver-only UNSAT, essential RAT step, checker disagreement, accepted corruption, or hash mismatch prevents certification.",
+      "id": "E037-R5-BROOKS-NEIGHBORHOOD-SPLIT",
+      "input_space": "Every admissible simple 5-regular graph on 26 vertices with no independent six-set, split by the isomorphism type of one five-vertex neighborhood.",
+      "mathematical_question": "Does the kernel-checked six-edge neighborhood bound decompose the finite Brooks substitute into certifiable exhaustive branches?",
+      "resource_cap": "100 seconds wall, 90 seconds internal, and 6 GiB per proof-producing branch with at most two concurrent processes; 1,800 seconds and 12 GiB per conversion/check.",
+      "result": "The all-permutation audit recovered exactly 26 admissible neighborhood orbits with the preregistered distribution. Sample branches 00 and 17 without exterior sorting returned UNKNOWN at 90 seconds; incomplete traces were deleted.",
+      "status": "PARTIAL-EXPERIMENTAL",
+      "verification_plan": "All-permutation orbit enumeration; independent branch reconstruction; semantic SAT checking; zero-RAT conversion; two LRAT checkers; corruption rejection; exact regeneration and hash round trips.",
+      "why_high_information": "It uses a newly kernel-checked local consequence to replace one hard finite search by 26 exact isomorphism branches, directly targeting the first missing theorem in the r=5 chain."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E038-r5-brooks-exterior-pattern-symmetry-plan.md", "role": "preregistered safe exterior-vertex symmetry plan"},
+        {"path": "experiments/E038-r5-brooks-exterior-pattern-symmetry-result.md", "role": "exact partial-certificate result and open-branch record"},
+        {"path": "artifacts/e038_brooks_branches/receipt.json", "bytes": 12095, "sha256": "4dc9b52aa30c321f14a8be873cf61b09cd53400dd29aac0f78288da9fa8c32af"},
+        {"path": "artifacts/e038_brooks_branches/", "role": "19 compressed exact branch CNFs"},
+        {"path": "certificates/e038_brooks_branches/", "role": "19 compressed RUP-only LRAT certificates"}
+      ],
+      "commands": [
+        "python3 tests/test_r5_brooks_exterior_sorted_cnf.py",
+        "python3 tests/test_r5_brooks_exterior_sorted_certificates.py"
+      ],
+      "expected_outputs_and_falsification": "A truth-table-audited lexicographic recurrence and E037 branches with all 20 exterior-to-neighborhood patterns safely sorted. Any unsafe orbit, wrong comparison, clause mismatch, valid model, UNKNOWN branch, unconverted UNSAT, essential RAT, checker disagreement, accepted corruption, or hash mismatch prevents certification.",
+      "id": "E038-R5-BROOKS-EXTERIOR-PATTERN-SYMMETRY",
+      "input_space": "Every E037 neighborhood branch modulo arbitrary permutations of the 20 vertices outside the fixed closed neighborhood.",
+      "mathematical_question": "Does sorting the exterior adjacency patterns make the finite Brooks branches certificate-scale without losing any graph?",
+      "resource_cap": "100 seconds wall, 90 seconds internal, and 6 GiB per sampled proof-producing branch; 1,800 seconds and 12 GiB for any proof conversion/check.",
+      "result": "PARTIAL-CERTIFIED for branches 00 through 18: all 19 exact formulas regenerate, all zero-RAT LRATs pass independent C and Python checkers, and all 76 deliberate corruptions fail. Branch 19 returned UNKNOWN at cap; branches 19 through 25 remain open, so the finite special-Brooks theorem is not certified.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Exhaustive lex-recurrence truth table; independent clause and auxiliary reconstruction; exact orbit argument; semantic SAT validation or dual zero-RAT LRAT verification with corruptions and hashes.",
+      "why_high_information": "It removes the dominant S20 exterior-label symmetry using only the fixed-neighborhood orbit already established, with a small independently exhaustible encoding."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E039-r5-brooks-first-exterior-pattern-split-plan.md", "role": "preregistered exact 32-way refinement of open E038 branches"}
+      ],
+      "commands": [
+        "python3 tests/test_r5_brooks_first_pattern_cnf.py"
+      ],
+      "expected_outputs_and_falsification": "For each promoted parent, all 32 exact first-pattern children must regenerate and carry checked RUP-only LRATs. An omitted mask, wrong bit order, valid model, UNKNOWN child, unconverted UNSAT, essential RAT, checker disagreement, accepted corruption, or hash mismatch leaves the parent open.",
+      "id": "E039-R5-BROOKS-FIRST-EXTERIOR-PATTERN-SPLIT",
+      "input_space": "Each open E038 neighborhood branch, split by all 32 possible sorted adjacency vectors from exterior vertex 6 into the fixed five-neighbor set.",
+      "mathematical_question": "Can the remaining finite Brooks branches be certified after an exact split on their least exterior adjacency pattern?",
+      "resource_cap": "100 seconds wall, 90 seconds internal, and 6 GiB per proof-producing child; 1,800 seconds and 12 GiB per conversion/check, with at most two concurrent processes.",
+      "result": "The independent audit proves the 32-way split exact and disjoint. Branch 19 / first-pattern 00 returned UNKNOWN at 90 seconds; the incomplete trace was deleted and no parent branch was promoted.",
+      "status": "PARTIAL-EXPERIMENTAL",
+      "verification_plan": "Independent 32-mask clause reconstruction and coverage; semantic SAT checking; zero-RAT conversion; two LRAT checkers; corruption rejection; regeneration and hash round trips.",
+      "why_high_information": "It refines only the seven E038 parents not already certified, using a disjoint primary-variable split exposed by the proven exterior sorting."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E040-r5-brooks-k4-local-admissibility-plan.md", "role": "preregistered K4-local admissibility refinement"}
+      ],
+      "commands": [
+        "python3 tests/test_r5_brooks_k4_local_cnf.py"
+      ],
+      "expected_outputs_and_falsification": "Exactly 19,404 independently reconstructed at-most-five clauses over all 231 K4-plus-pair six-sets, followed by a checked certificate. Any clause mismatch, invalid consequence, valid model, UNKNOWN, unconverted UNSAT, essential RAT, checker disagreement, accepted corruption, or hash mismatch prevents certification.",
+      "id": "E040-R5-BROOKS-K4-LOCAL-ADMISSIBILITY",
+      "input_space": "E038 neighborhood branch 19, with every six-set containing its fixed K4 subjected to the original eleven-edge admissibility bound.",
+      "mathematical_question": "Does the kernel-checked local edge bound certify the K4-plus-isolate neighborhood branch left open by symmetry alone?",
+      "resource_cap": "100 seconds wall, 90 seconds internal, and 6 GiB for one proof-producing run; 1,800 seconds and 12 GiB for conversion/checking.",
+      "result": "The independent audit reconstructs all 19,404 local clauses and the exact 3,930-variable, 493,736-clause formula. Kissat returned UNKNOWN at 90 seconds; the incomplete trace was deleted.",
+      "status": "PARTIAL-EXPERIMENTAL",
+      "verification_plan": "Independent K4/pair/six-subset reconstruction and truth tables; semantic SAT checking; zero-RAT conversion; two LRAT checkers; corruption rejection; regeneration and hashes.",
+      "why_high_information": "It feeds a specific kernel-checked admissibility consequence into the first hard neighborhood branch using a compact direct encoding rather than a broader opaque search."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E041-r5-brooks-k4-cadical-plan.md", "role": "preregistered alternate proof-engine plan on unchanged E040 CNF"}
+      ],
+      "commands": [
+        "cadical --plain -t 290 /tmp/erdos617-e040.cnf /tmp/erdos617-e041.drat"
+      ],
+      "expected_outputs_and_falsification": "A direct zero-RAT LRAT for the exact E040 formula, or a core followed by a fresh RUP-only proof. Raw solver status, essential RAT, valid model, checker disagreement, accepted corruption, formula mismatch, or hash mismatch prevents certification.",
+      "id": "E041-R5-BROOKS-K4-CADICAL",
+      "input_space": "The unchanged independently audited E040 branch-19 CNF.",
+      "mathematical_question": "Can pinned CaDiCaL certify the K4-local admissible branch that RUP-oriented Kissat did not decide at cap?",
+      "resource_cap": "300 seconds wall, 290 seconds internal, and 6 GiB for proof search; 1,800 seconds and 12 GiB for conversion/checking.",
+      "result": "Pinned CaDiCaL 1.9.5 returned UNKNOWN at 290 seconds on the unchanged audited E040 formula. The incomplete trace was deleted; this is search metadata only.",
+      "status": "PARTIAL-EXPERIMENTAL",
+      "verification_plan": "Exact E040 regeneration; plain CaDiCaL proof search; zero-RAT conversion or certified-core replay; two LRAT checkers; corruption rejection and hashes.",
+      "why_high_information": "It tests solver-search sensitivity without weakening the evidence standard or changing the mathematical formula."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E042-r5-brooks-branch19-cross-pattern-plan.md", "role": "preregistered exact 20-way cross-pattern split"},
+        {"path": "experiments/E042-r5-brooks-branch19-cross-pattern-result.md", "role": "exact direct-certificate and residual boundary"},
+        {"path": "artifacts/e042_branch19_cross_patterns/receipt.json", "bytes": 18242, "sha256": "f1a42f4ebe2c3ccd28e5e050e52e494800e210e473458cd1466146e05bdd9319", "role": "per-child proof and hash receipt"},
+        {"path": "artifacts/e042_branch19_cross_patterns/", "role": "17 compressed exact child CNFs"},
+        {"path": "certificates/e042_branch19_cross_patterns/", "role": "17 compressed zero-RAT LRATs"}
+      ],
+      "commands": [
+        "python3 tests/test_r5_brooks_branch19_cross_pattern_cnf.py",
+        "python3 tests/test_r5_brooks_residual_certificates.py"
+      ],
+      "expected_outputs_and_falsification": "Exactly 20 independently reconstructed S4 x S20 cross-pattern orbits with distribution 4:5, 5:7, 6:5, 7:2, 8:1, followed by checked zero-RAT LRATs for all children. Any omitted incidence partition, unsafe automorphism, wrong lex order or unit, SAT model, UNKNOWN child, unconverted UNSAT, essential RAT, checker disagreement, accepted corruption, regeneration failure, or hash mismatch leaves branch 19 open.",
+      "id": "E042-R5-BROOKS-BRANCH19-CROSS-PATTERN",
+      "input_space": "Every E040 branch-19 graph, split by the exact multiset of its 20 exterior-to-neighborhood adjacency rows modulo the fixed K4 automorphism group and exterior-vertex permutations.",
+      "mathematical_question": "Does exact degree accounting reduce the first hard Brooks neighborhood branch to a small complete certificate family?",
+      "resource_cap": "100 seconds wall, 90 seconds internal, and 6 GiB per proof-producing child with at most two concurrent processes; 1,800 seconds and 12 GiB per conversion/check.",
+      "result": "PARTIAL-CERTIFIED: the exact S4 x S20 audit recovers all 20 cross-pattern orbits. Seventeen children have direct dual-checked zero-RAT LRATs; children 04, 09, and 19 are covered by all 47 E043 certificates. E042 plus E043 certifies neighborhood branch 19.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Set-partition generation; independent direct-row enumeration; complete unit and prefix audit; semantic SAT checking; zero-RAT conversion; two LRAT checkers; corruption rejection; exact regeneration and hash round trips.",
+      "why_high_information": "The fixed K4 forces only eight cross incidences and leaves 20 exact orbits, replacing a hard monolithic formula by a complete primary-variable split with no new mathematical assumption."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E043-r5-brooks-zero-pattern-neighborhood-plan.md", "role": "preregistered exact 47-way residual symmetry split"},
+        {"path": "experiments/E043-r5-brooks-zero-pattern-neighborhood-result.md", "role": "complete residual-certificate result"},
+        {"path": "artifacts/e043_branch19_zero_neighborhoods/receipt.json", "bytes": 49082, "sha256": "fd60b220ab27b19a221eaebaa7893b3c1b0c3293cfd484da602dc06eb0f95a1d", "role": "47-child proof and hash receipt"},
+        {"path": "artifacts/e043_branch19_zero_neighborhoods/", "role": "47 compressed exact child CNFs"},
+        {"path": "certificates/e043_branch19_zero_neighborhoods/", "role": "47 compressed zero-RAT LRATs"}
+      ],
+      "commands": [
+        "python3 tests/test_r5_brooks_zero_pattern_neighborhood_cnf.py",
+        "python3 tests/test_r5_brooks_residual_certificates.py"
+      ],
+      "expected_outputs_and_falsification": "Exactly 26, 16, and 5 anchor-neighborhood orbits over E042 parents 04, 09, and 19, all primary units independently reconstructed, and checked zero-RAT LRATs for every child. Any unsafe zero-class or K4-stabilizer quotient, omitted neighbor subset, wrong degree-five unit, SAT model, UNKNOWN child, unconverted UNSAT, essential RAT, checker disagreement, accepted corruption, regeneration failure, or hash mismatch leaves its parent open.",
+      "id": "E043-R5-BROOKS-ZERO-PATTERN-NEIGHBORHOOD",
+      "input_space": "Every graph in the three open E042 cross-pattern parents, split by the neighborhood of one freely relabelled zero-pattern exterior vertex modulo the exact residual row and K4 stabilizers.",
+      "mathematical_question": "Does fixing one degree-five neighborhood remove the residual large symmetric search in E042 children 04, 09, and 19?",
+      "resource_cap": "100 seconds wall, 90 seconds internal, and 6 GiB per proof-producing child with at most two concurrent processes; 1,800 seconds and 12 GiB per conversion/check.",
+      "result": "PARTIAL-CERTIFIED: independent stabilizer and row-class audits recover exactly 26, 16, and 5 residual anchor-neighborhood orbits. All 47 exact formulas regenerate and all 47 zero-RAT LRATs pass both checkers and four corruption rejections each.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Full stabilizer construction; independent row-class orbit reconstruction; exact primary-unit and parent-prefix audit; semantic SAT checking; zero-RAT conversion; two LRAT checkers; corruption rejection; exact regeneration and hash round trips.",
+      "why_high_information": "It attacks only the three exact residual E042 orbits and replaces their S14--S16 zero-pattern symmetry by 47 complete primary-variable children."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E044-r5-brooks-closed-neighborhood-admissibility-plan.md", "role": "preregistered six-branch local-admissibility strengthening"},
+        {"path": "experiments/E044-r5-brooks-closed-neighborhood-admissibility-result.md", "role": "audited strengthening and exact timeout boundary"},
+        {"path": "artifacts/e044_closed_neighborhood_search/receipt.json", "bytes": 2504, "sha256": "f6a949d114d413960acd0cceef04a35a9611bc9e60368218f344b4ba0560a8b5", "role": "six-branch UNKNOWN search receipt"}
+      ],
+      "commands": [
+        "python3 tests/test_r5_brooks_closed_neighborhood_admissibility_cnf.py"
+      ],
+      "expected_outputs_and_falsification": "Independent reconstruction of 38,577, 59,598, 91,476, 88,704, 53,130, and 82,236 exact four-core admissibility clauses for branches 20--25, exhaustive nine-bit truth tables, and checked zero-RAT LRATs for every promoted branch. Any clause, core, pair, threshold, polarity, model, proof, checker, corruption, regeneration, or hash failure leaves the branch open.",
+      "id": "E044-R5-BROOKS-CLOSED-NEIGHBORHOOD-ADMISSIBILITY",
+      "input_space": "Every E038 graph in neighborhood branches 20 through 25, strengthened by the original admissibility bound on all six-sets containing four vertices of its fixed closed neighborhood.",
+      "mathematical_question": "Do all exact closed-neighborhood four-core consequences certify the six remaining Brooks branches without a 1,882-case cross-pattern split?",
+      "resource_cap": "100 seconds wall, 90 seconds internal, and 6 GiB per proof-producing branch with at most two concurrent processes; 1,800 seconds and 12 GiB per conversion/check.",
+      "result": "PARTIAL-EXPERIMENTAL: 413,721 added clauses and all 2,048 relevant truth rows pass independent reconstruction. All six proof searches returned UNKNOWN at the cap; no certificate or mathematical branch result is claimed.",
+      "status": "PARTIAL-EXPERIMENTAL",
+      "verification_plan": "Independent four-core/remainder reconstruction and truth tables; exact parent-prefix audit; semantic SAT checking; zero-RAT conversion; two LRAT checkers; corruption rejection; exact regeneration and hash round trips.",
+      "why_high_information": "It injects every compact admissibility consequence around the saturated 11-edge closed neighborhood before resorting to a much larger exact cross-pattern catalog."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E045-r5-brooks-zero-anchor-quotient-plan.md", "role": "preregistered zero-pattern anchor quotient"},
+        {"path": "experiments/E045-r5-brooks-zero-anchor-quotient-result.md", "role": "complete finite special-Brooks certificate boundary"},
+        {"path": "artifacts/e045_special_brooks_verify.log", "bytes": 6570, "sha256": "ae39396770fb20f28cf6dfd00af46978c7881d5f002f8af36f159bd3ab41bd25", "role": "clean combined structural and 89-certificate replay log"},
+        {"path": "artifacts/e045_zero_anchor_quotients/receipt.json", "bytes": 6867, "sha256": "9481c920cb33de9afb20eac982fd517fd8bac5ebbd5986f91d67459f5cd0fdde", "role": "six-branch proof and hash receipt"},
+        {"path": "artifacts/e045_zero_anchor_quotients/", "role": "six compressed exact branch CNFs"},
+        {"path": "certificates/e045_zero_anchor_quotients/", "role": "six compressed zero-RAT LRATs"}
+      ],
+      "commands": [
+        "python3 tests/test_r5_brooks_zero_anchor_quotient_cnf.py",
+        "python3 tests/test_r5_brooks_residual_certificates.py",
+        "make verify-r5-special-brooks"
+      ],
+      "expected_outputs_and_falsification": "Independent 12,10,8,8,10,8 cross-stub and zero-row proof; exact reconstruction of 24 anchor units, two safe within-class cross-pattern sorts, all 120 anchor-neighborhood clauses, and the complete E044 strengthening; followed by checked zero-RAT LRATs for every promoted branch. Any orbit, unit, clause, model, proof, checker, corruption, regeneration, or hash failure leaves the branch open.",
+      "id": "E045-R5-BROOKS-ZERO-ANCHOR-QUOTIENT",
+      "input_space": "Every graph in neighborhood branches 20 through 25, quotiented by choosing a guaranteed zero-cross-pattern exterior vertex, fixing its five exterior neighbors, and sorting cross patterns only within the two residual exterior classes.",
+      "mathematical_question": "Can a single symmetry-safe zero-anchor quotient certify the six residual Brooks branches without enumerating their 1,882 complete cross-pattern orbits?",
+      "resource_cap": "100 seconds wall, 90 seconds internal, and 6 GiB per proof-producing branch with at most two concurrent processes; 1,800 seconds and 12 GiB per conversion/check.",
+      "result": "PARTIAL-CERTIFIED: the corrected cross-stub audit guarantees a zero exterior row in all six branches. All six quotient formulas regenerate and have dual-checked zero-RAT LRATs. Combined with E038 and E042--E043, all 26 neighborhood branches and the complete finite special-Brooks hypothesis are certificate-checked; fixed r=5 and all-r remain unresolved at machine-verification level.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Independent degree/stub arithmetic and pigeonhole audit; exhaustive lex truth table; exact unit, sort, E044, and anchor-neighborhood clause reconstruction; semantic SAT checking or dual zero-RAT LRAT verification with corruptions and hashes.",
+      "why_high_information": "All six residual types have at most twelve cross stubs, so a guaranteed zero row exposes a second fixed degree-five neighborhood and removes most exterior-label symmetry in one exact branch per type."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E046-r5-kang-pikhurko-large-specializations-plan.md", "role": "preregistered six-formula finite replacement plan"},
+        {"path": "experiments/E046-r5-kang-pikhurko-large-specializations-result.md", "role": "exact unquotiented UNKNOWN boundary"},
+        {"path": "artifacts/e046_kp_large_unquotiented/receipt.json", "bytes": 5152, "sha256": "31966bd12c2a0b07959f701f89be3db9fc1e3f3de1c69631e60dffb84eac4258"},
+        {"path": "artifacts/e046_kp_large_unquotiented/", "role": "six compressed exact labelled CNFs"}
+      ],
+      "commands": [
+        "python3 tests/test_r5_kp_large_specialization_cnf.py",
+        "python3 repro/run_e046_batch.py --output-directory /tmp/erdos617-e046-run"
+      ],
+      "expected_outputs_and_falsification": "All six labelled graph formulas must pass independent clause, counter, and semantic audits. SAT requires a checked graph; UNSAT requires zero-RAT conversion and dual checking; UNKNOWN is non-evidence. Any wrong threshold, missing graph, encoding mismatch, checker failure, corruption acceptance, or hash mismatch prevents promotion.",
+      "id": "E046-R5-KP-LARGE-UNQUOTIENTED",
+      "input_space": "All labelled simple graphs in six broad alpha/omega/edge-count specializations used by the audited fixed-r=5 proof, with no graph-isomorphism restriction.",
+      "mathematical_question": "Can six large Kang--Pikhurko numerical uses be replaced by direct finite certificates?",
+      "resource_cap": "290 seconds internal, 310 seconds wall, and 8 GiB per case, with at most two concurrent cases.",
+      "result": "All six formulas pass independent audits, but every proof search returned UNKNOWN at cap. No mathematical theorem is inferred; the formulas are an exact search boundary.",
+      "status": "PARTIAL-EXPERIMENTAL",
+      "verification_plan": "Exact primary edge variables; complete alpha and omega subset clauses; independently truth-tabled unary edge counter; semantic graph evaluation; proof-producing Kissat only as a discovery engine; checked zero-RAT LRAT required for promotion.",
+      "why_high_information": "The formulas directly encode every graph in precisely the six broad external extremal specializations without an unproved structural family restriction."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E047-r5-kp-average-degree-anchor-plan.md", "role": "preregistered orbit-retaining average-degree quotient"},
+        {"path": "experiments/E047-r5-kp-average-degree-anchor-result.md", "role": "four-certificate result and exact two-case open boundary"},
+        {"path": "artifacts/e047_kp_average_degree_anchor/receipt.json", "bytes": 10335, "sha256": "493faac7232d5f3286a19fb9a2d9b74da9dcb88f4353b627e94eace0e750f3b1"},
+        {"path": "artifacts/e047_kp_average_degree_anchor/", "role": "six compressed anchored CNFs"},
+        {"path": "certificates/e047_kp_average_degree_anchor/", "role": "four compressed zero-RAT LRATs"},
+        {"path": "artifacts/e047_kp_verify.log", "bytes": 1350, "sha256": "3fd61b076e6e8cf38d8068cd4c723427478d3dafe66276d72d1baf94311467ad", "role": "exact twelve-input regeneration, dual proof checking, and corruption transcript"}
+      ],
+      "commands": [
+        "python3 tests/test_r5_kp_average_degree_anchor_cnf.py",
+        "python3 tests/verify_r5_kp_average_degree_anchor_certificates.py",
+        "make verify-r5-kp-large"
+      ],
+      "expected_outputs_and_falsification": "The average-degree cap and relabelling must retain every orbit; every anchored clause and all six parent plus all six anchored inputs must regenerate exactly. Both checkers must accept four zero-RAT LRATs and reject every corruption. The two UNKNOWN cases remain open.",
+      "id": "E047-R5-KP-AVERAGE-DEGREE-ANCHOR",
+      "input_space": "The six E046 graph spaces modulo choosing a guaranteed low-degree vertex as zero and sorting only its neighborhood prefix.",
+      "mathematical_question": "Does a proved low-degree anchor make the six broad finite extremal specializations certificate-scale?",
+      "resource_cap": "180 seconds internal, 200 seconds wall, and 8 GiB per case, with at most two concurrent cases.",
+      "result": "PARTIAL-CERTIFIED: orders 19--22 with alpha at most three have certified lower bounds 56, 62, 69, and 76. Both alpha-at-most-four cases at orders 24--25 returned UNKNOWN. Four LRATs are zero-RAT, dual-checked, exactly regenerated, and survive hash round trips; 16 corruptions are rejected.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Handshake proof of a low-degree vertex; explicit orbit-retaining relabelling; independent prefix/cap truth tables and graph canonicalization; exact CNF regeneration; zero-RAT conversion; two LRAT checkers; corruptions and hashes.",
+      "why_high_information": "One small symmetry quotient certifies four unrestricted graph inequalities while preserving an exact, explicit boundary for the two formulas still open."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E048-r5-admissible-alpha-two-formalization-plan.md", "role": "preregistered kernel target and falsifiers"},
+        {"path": "experiments/E048-r5-admissible-alpha-two-formalization-result.md", "role": "exact checked theorem boundary"},
+        {"path": "formal/lean/Erdos617/AlphaTwoLarge.lean", "bytes": 11370, "sha256": "400d35fdcfc85c72a16ffdb4db1819fcac27c32bab85d662127ffae395a27bce"},
+        {"path": "artifacts/e048_lean_build.log", "bytes": 68463, "sha256": "96c874016be7e37e44b61cf980ea3c9494b8579cb475ea132616742d600f6bf9", "role": "clean build and 70-theorem assumption audit"}
+      ],
+      "commands": [
+        "python3 repro/run_e048_lean_audit.py --project /path/to/clean/formal/lean --lake /path/to/lean-4.32.0/bin/lake --log artifacts/e048_lean_build.log --clean",
+        "rg -n '\\bsorry\\b|\\badmit\\b|^axiom\\b|^unsafe\\b|native_decide|run_tac' formal/lean"
+      ],
+      "expected_outputs_and_falsification": "The Lean kernel must prove both complement degree caps and the edge bound with no warning, placeholder, added axiom, unsafe shortcut, hidden regularity assumption, or subtype/cardinality gap. All theorem queries may use only the three allowed logical foundations.",
+      "id": "E048-R5-ADMISSIBLE-ALPHA-TWO-FORMALIZATION",
+      "input_space": "Every finite admissible simple graph with no independent triple, and the order-at-least-twelve subfamily.",
+      "mathematical_question": "Can the manuscript's large independence-two terminal bound be proved in the pinned Lean kernel without Kang--Pikhurko or a solver?",
+      "resource_cap": "Ten minutes and 8 GiB for a clean project build and complete exported-theorem audit.",
+      "result": "PARTIAL-CERTIFIED: complement maximum degree is at most five, at most four from order twelve, and choose(n,2) is at most e(F)+2n. The clean 1,294-job audit checks 70 exported theorems with no warning and no foundations beyond propext, Classical.choice, and Quot.sound.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Formal induced-complement and cross-edge correspondence; exact bipartite double counting; handshaking and complement partition; pinned clean build; full axiom and source-safety audit.",
+      "why_high_information": "This removes the imported extremal theorem from an entire terminal layer and creates the base case for a kernel-checked independence-level recursion."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E049-r5-admissible-alpha-propagation-plan.md", "role": "preregistered propagation target and falsifiers"},
+        {"path": "experiments/E049-r5-admissible-alpha-propagation-result.md", "role": "exact kernel-checked theorem boundary"},
+        {"path": "formal/lean/Erdos617/AlphaPropagation.lean", "bytes": 26979, "sha256": "6e172bb627782d1b83569bf5b40c7cf1a2a800b373177b28aa89657830e7b21b"},
+        {"path": "repro/run_e049_lean_audit.py", "bytes": 4758, "sha256": "739e5798cfb40548816efffc66736e0c8a374a1973e89f19f3045671088dc154", "role": "strict clean-build, source-safety, warning, and assumption auditor"},
+        {"path": "artifacts/e049_lean_build.log", "bytes": 71147, "sha256": "ea0e9bcfa11e538f4ef17e9e63e44d08d2dfd96c9bf3e96fe2f884c38a5aeae0", "role": "clean build and 90-theorem assumption audit"}
+      ],
+      "commands": [
+        "python3 repro/run_e049_lean_audit.py --project /path/to/clean/formal/lean --lake /path/to/lean-4.32.0/bin/lake --log artifacts/e049_lean_build.log --clean",
+        "rg -n '\\bsorry\\b|\\badmit\\b|^axiom\\b|^unsafe\\b|native_decide|run_tac' formal/lean"
+      ],
+      "expected_outputs_and_falsification": "The Lean kernel must check the edge partition, induced admissibility, exterior independence reduction, minimum-degree bridge, and every numerical branch with no warning, placeholder, added axiom, unsafe shortcut, omitted exterior order, or hidden structural assumption. All 90 theorem queries may use only the three allowed logical foundations.",
+      "id": "E049-R5-ADMISSIBLE-ALPHA-PROPAGATION",
+      "input_space": "Every finite admissible simple graph in the stated independence levels, with all minimum-degree branches for orders 18--25 covered by explicit Lean arithmetic.",
+      "mathematical_question": "Can E048 be propagated in the Lean kernel to replace all six large Kang--Pikhurko numerical uses under the admissibility hypotheses actually present in the fixed-r=5 proof?",
+      "resource_cap": "Ten minutes and 8 GiB for a clean project build and complete exported-theorem audit.",
+      "result": "PARTIAL-CERTIFIED: exact graph bridges and minimum-degree propagation give admissible IndepSetFree-4 lower bounds 54, 56, 62, 69, 76, 83, and 90 at orders 18--24, and admissible IndepSetFree-5 lower bounds 65 and 71 at orders 24--25. The clean 1,296-job audit checks 90 exported theorems with zero warnings and no foundations beyond propext, Classical.choice, and Quot.sound.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Formal exact edge decomposition and induced-subgraph inheritance; exterior independence reduction; minimum-vertex handshaking inequality; explicit fixed-integer branch normalization; fresh pinned build; full axiom, warning, and source-safety audit.",
+      "why_high_information": "This removes every large numerical Kang--Pikhurko premise from the actual admissible r=5 route while preserving the broader E047 order-24/25 UNKNOWN boundary and isolating the small endpoints as the next obligation."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E050-r5-order-eleven-terminal-formalization-plan.md", "bytes": 2964, "sha256": "9fe721c751d75fe453c37d5ca09021296366e895f00f23c77f2d39c182fb79ec", "role": "preregistered direct-kernel target and falsifiers"},
+        {"path": "experiments/E050-r5-order-eleven-terminal-formalization-result.md", "bytes": 3432, "sha256": "0c23bbacfd1c8b4eb4871f261a2f211880505cc694e4be037d2ac6f4563fd2e3", "role": "exact kernel-checked theorem boundary"},
+        {"path": "formal/lean/Erdos617/AlphaTwoEleven.lean", "bytes": 50707, "sha256": "7e35ae11ed4c920fbaeb7a1ed90929135520772b13a1609e0d9c014a72cb4bc4"},
+        {"path": "repro/run_e050_lean_audit.py", "bytes": 4759, "sha256": "41318fbfcdfa8b164722dc651a83bce2623b094a722d987473d03b484bf28408", "role": "strict clean-build, warning, and assumption auditor"},
+        {"path": "artifacts/e050_lean_build.log", "bytes": 73118, "sha256": "449d5b654dbcceca45bfd82dcc998e3b73617537af54ed4ae6161d39a2df4f9b", "role": "clean build and 105-theorem assumption audit"}
+      ],
+      "commands": [
+        "python3 repro/run_e050_lean_audit.py --project /path/to/clean/formal/lean --lake /path/to/lean-4.32.0/bin/lake --log artifacts/e050_lean_build.log --clean",
+        "rg -n '\\bsorry\\b|\\badmit\\b|^axiom\\b|^unsafe\\b|native_decide|run_tac' formal/lean"
+      ],
+      "expected_outputs_and_falsification": "The Lean kernel must prove the order-eleven 36-edge bound with no warning, placeholder, added axiom, unsafe shortcut, hidden degree-four choice, incomplete label collision, subtype/cardinality error, graph-catalog premise, or unchecked computation. All 105 theorem queries may use only the three allowed logical foundations.",
+      "id": "E050-R5-ORDER-ELEVEN-TERMINAL-FORMALIZATION",
+      "input_space": "Every finite admissible simple graph on eleven vertices with no independent triple.",
+      "mathematical_question": "Can the order-eleven independence-two endpoint be proved directly in the pinned Lean kernel without the E033 graph catalog, Kang--Pikhurko, SAT, or an assumed finite classification?",
+      "resource_cap": "The current execution window, 8 GiB, and the pinned Lean 4.32.0/mathlib toolchain.",
+      "result": "PARTIAL-CERTIFIED: every admissible order-eleven graph with IndepSetFree 3 has at least 36 edges. A direct label-collision argument replaces the manuscript's path/cycle case split. The clean 1,297-job audit checks 105 exported theorems with zero warnings and no foundations beyond propext, Classical.choice, and Quot.sound.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Formal degree-five exclusion, handshaking degree-four choice, exact cross-degree and edge partitions, finite two-subset label pigeonhole, explicit six-set contradiction, fresh pinned build, complete assumption audit, and source-safety scan.",
+      "why_high_information": "This removes the graph-catalog trust boundary from the order-eleven small endpoint and leaves the order-ten structure theorem as the next terminal obligation."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E051-r5-order-ten-structure-formalization-plan.md", "bytes": 3134, "sha256": "e58a2574425b2c9992775fa5ee46ff90969c6f6ad6f490033691fe4a63767c77", "role": "preregistered complete order-ten kernel target and falsifiers"},
+        {"path": "experiments/E051-r5-order-ten-structure-formalization-result.md", "bytes": 5255, "sha256": "b1446a81997bf2fd7eabb389f494a72c1fcd8e6c6a920a9761f0f719180b2f41", "role": "exact kernel-checked theorem boundary"},
+        {"path": "formal/lean/Erdos617/OrderTenStructure.lean", "bytes": 101821, "sha256": "81676c0c075ced2b31856e24b5e7d1b15cb66c7a8c984260692db5cbe5315c12"},
+        {"path": "repro/run_e051_lean_audit.py", "bytes": 6482, "sha256": "61b2811003a318f317160d8acfb51fc751c3e67156e5ae7833a8355e91058001", "role": "strict fresh-build, source-safety, warning, and assumption auditor"},
+        {"path": "artifacts/e051_lean_build.log", "bytes": 18108, "sha256": "fb4f36fa1599c7d8e9cde7eff2678ad94f5db29ffd01cebd26f7f88382cb583f", "role": "fresh local-build-free mirror build and 152-theorem assumption audit"}
+      ],
+      "commands": [
+        "rsync -a --link-dest=/path/to/repo/formal/lean --exclude='/.lake/build' --exclude='/Check.lean' /path/to/repo/formal/lean/ /path/to/fresh/mirror/",
+        "python3 repro/run_e051_lean_audit.py --project /path/to/fresh/mirror --lake /path/to/lean-4.32.0/bin/lake --log artifacts/e051_lean_build.log --require-no-local-build"
+      ],
+      "expected_outputs_and_falsification": "The Lean kernel must prove all five preregistered order-ten conclusions with no warning, placeholder, added axiom, unsafe shortcut, native computation, incomplete exterior case, invalid bipartition, graph-catalog premise, SAT premise, isomorphism gap, or cover-transport error. All 152 theorem queries may use only the three allowed logical foundations.",
+      "id": "E051-R5-ORDER-TEN-STRUCTURE-FORMALIZATION",
+      "input_space": "Every finite admissible simple graph on ten vertices in the stated bipartite, nonbipartite, twenty-edge, and nineteen-edge branches, plus the canonical balanced two-fold C5 blow-up.",
+      "mathematical_question": "Can the complete order-ten structure endpoint be proved directly in the pinned Lean kernel without the E033 graph catalog, Kang--Pikhurko, SAT, or an assumed finite classification?",
+      "resource_cap": "The current execution window, 8 GiB, and the pinned Lean 4.32.0/mathlib toolchain.",
+      "result": "PARTIAL-CERTIFIED: all preregistered order-ten conclusions are kernel-checked. The clean 1,309-job audit checks 152 exported theorems with zero warnings or forbidden source constructs and no foundations beyond propext, Classical.choice, and Quot.sound.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Direct degree and exterior reconstruction; transparent kernel checks over compact finite codes; explicit equality isomorphism and cover transport; fresh local-build-free mirror; complete source, warning, and axiom audit.",
+      "why_high_information": "This removes the final order-ten graph-catalog boundary and provides the exact equality and minimum-cover facts needed by the next independence-three and recursive obstruction layers."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E052-r5-small-alpha-three-obstruction-formalization-plan.md", "bytes": 3444, "sha256": "2907f6d8fdeb9e2c9c0c73688d56b97b29ff43f77e38b1de980aa2d1faa9c916", "role": "preregistered complete small independence-three target and falsifiers"},
+        {"path": "experiments/E052-r5-small-alpha-three-obstruction-formalization-result.md", "bytes": 5277, "sha256": "541220b98050e3580a419da32e32d5fa6366cd2190708a7900a8f5d8af18557f", "role": "exact kernel-checked theorem boundary"},
+        {"path": "formal/lean/Erdos617/AlphaThreeSmall.lean", "bytes": 34329, "sha256": "69071945fe7ca000cbb1e6982fcf5df6ebb69ecac87c5efc1f406bd96e5ffdaa"},
+        {"path": "repro/run_e052_lean_audit.py", "bytes": 6379, "sha256": "bd8a4cfea0e0e29ff0f71d44b0af88734956c097e15474759e9fe8a1f37fec0d", "role": "strict fresh-build, source-safety, warning, and assumption auditor"},
+        {"path": "artifacts/e052_lean_build.log", "bytes": 19059, "sha256": "29f5bc8330cfa105f4b3b4bb2e615f5bbba45486335f284ad550d2486527b74c", "role": "fresh local-build-free mirror build and 159-theorem assumption audit"},
+        {"path": "artifacts/e052_lean_resources.txt", "bytes": 996, "sha256": "4ff79e16a93297b513c6faf8df7c7ef8fed80e9191150e0eaaac9a0ac02593e4", "role": "retained wall-time and peak-memory record"}
+      ],
+      "commands": [
+        "rsync -a --link-dest=/path/to/repo/formal/lean --exclude='/.lake/build' --exclude='/Check.lean' /path/to/repo/formal/lean/ /path/to/fresh/mirror/",
+        "python3 repro/run_e052_lean_audit.py --project /path/to/fresh/mirror --lake /path/to/lean-4.32.0/bin/lake --log artifacts/e052_lean_build.log --require-no-local-build"
+      ],
+      "expected_outputs_and_falsification": "The Lean kernel must prove all three exact small independence-three ranges, including both exhaustive order-sixteen degree-five branches, with no warning, placeholder, added axiom, unsafe shortcut, native computation, incomplete degree case, invalid common-avoider selection, equality-accounting gap, graph-catalog premise, SAT premise, or cover-cardinality gap. All 159 theorem queries may use only the three allowed logical foundations.",
+      "id": "E052-R5-SMALL-ALPHA-THREE-OBSTRUCTION-FORMALIZATION",
+      "input_space": "Every finite admissible simple graph with no independent four-set at orders sixteen, seventeen, and eighteen, including every minimum-degree branch and both order-ten complement structures at the order-sixteen endpoint.",
+      "mathematical_question": "Can the complete small independence-three obstruction be proved in the pinned Lean kernel from E048--E051 without the E033 catalogs, Kang--Pikhurko, SAT, or an assumed finite classification?",
+      "resource_cap": "The current execution window, 8 GiB, and the pinned Lean 4.32.0/mathlib toolchain.",
+      "result": "PARTIAL-CERTIFIED: admissible IndepSetFree-4 graphs have at least 45, 50, and 54 edges at orders 16, 17, and 18. Both order-sixteen degree-five branches are closed directly. A fresh local-build-free 1,310-job audit checks 159 exported theorems with zero warnings or forbidden source constructs and no foundations beyond propext, Classical.choice, and Quot.sound.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Explicit minimum-degree propagation; direct bipartite common-avoider and forbidden-clique proof; exact nonbipartite accounting, pointwise degree equality, and minimum-cover contradiction; fresh local-build-free mirror; complete source, warning, and axiom audit.",
+      "why_high_information": "This converts E051's terminal structure into the complete next independence-level obstruction and leaves the two order-fifteen near-extremal classifications as the next structural bottleneck."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E053-r5-order-fifteen-classification-formalization-plan.md", "bytes": 4033, "sha256": "cf0773996c4ccceb39ad8d6986bed9dfba101302f82ffb3177cab4cc2c53a2e2", "role": "preregistered exact order-fifteen classification target and falsifiers"},
+        {"path": "experiments/E053-r5-order-fifteen-classification-formalization-result.md", "bytes": 5611, "sha256": "784f5683be0d934cf4bf51826bfb855ae3c02606d36a6cd3c8560179f409d138", "role": "exact kernel-checked theorem boundary"},
+        {"path": "formal/lean/Erdos617/OrderFifteenStructure.lean", "bytes": 58729, "sha256": "985ac581e9bc8eaf03c01c77a406b8a3ce2c2f4e673dbaf4f7c28f6a42071324"},
+        {"path": "repro/run_e053_lean_audit.py", "bytes": 6378, "sha256": "6000ce825353d63269c29c604833f611534ff1d9b208a5b6a2c4e6f7bcb999d6", "role": "strict fresh-build, source-safety, warning, and assumption auditor"},
+        {"path": "artifacts/e053_lean_build.log", "bytes": 21125, "sha256": "1103a990aa6d3eb4638848c4d7050d355625ba007ace27d3b11167708dfb6b6a", "role": "fresh local-build-free mirror build and 175-theorem assumption audit"},
+        {"path": "artifacts/e053_lean_resources.txt", "bytes": 996, "sha256": "6f9bbe9b616f3bbfbdfdc7339617da2ed9dcda75f659ac5861e0e7b30ad5285d", "role": "retained wall-time and peak-memory record"}
+      ],
+      "commands": [
+        "rsync -a --link-dest=/path/to/repo/formal/lean --exclude='/.lake/build' --exclude='/Check.lean' /path/to/repo/formal/lean/ /path/to/fresh/mirror/",
+        "python3 repro/run_e053_lean_audit.py --project /path/to/fresh/mirror --lake /path/to/lean-4.32.0/bin/lake --log artifacts/e053_lean_build.log --require-no-local-build"
+      ],
+      "expected_outputs_and_falsification": "The Lean kernel must prove the exact 35-edge structure and both exhaustive, incompatible 36-edge structures with no warning, placeholder, added axiom, unsafe shortcut, native computation, incomplete degree or edge-count case, invalid explicit three-coloring, equality-accounting gap, cover-number gap, weakened crossing count, graph-catalog premise, SAT premise, or residual-transport error. All 175 theorem queries may use only the three allowed logical foundations.",
+      "id": "E053-R5-ORDER-FIFTEEN-CLASSIFICATION-FORMALIZATION",
+      "input_space": "Every finite admissible simple graph on fifteen vertices with no independent four-set, non-three-colorable complement, and exactly 35 or 36 edges, including every minimum-degree, exterior-bipartiteness, accounting-equality, and residual-structure branch.",
+      "mathematical_question": "Can both complete order-fifteen near-extremal classifications be proved directly in the pinned Lean kernel without the E033 catalogs, Kang--Pikhurko, SAT, or an assumed finite classification?",
+      "resource_cap": "The current execution window, 8 GiB, and the pinned Lean 4.32.0/mathlib toolchain.",
+      "result": "PARTIAL-CERTIFIED: the exact 35-edge structure and an exclusive pair of exact 36-edge structures are kernel-checked. A fresh local-build-free 1,311-job audit checks 175 exported theorems with zero warnings or forbidden source constructs and no foundations beyond propext, Classical.choice, and Quot.sound.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Direct degree-four reduction and exterior accounting; explicit bipartite clique-cover coloring; equality isomorphism transport; cover-number-six contradictions; exact isolation and one-cross-edge witnesses; incompatibility proof; fresh local-build-free mirror; complete source, warning, and axiom audit.",
+      "why_high_information": "This removes both order-fifteen classification obligations and leaves the complete independence-four obstruction as the next structural bottleneck."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E054-r5-small-alpha-four-obstruction-formalization-plan.md", "bytes": 4580, "sha256": "929c42398c1d524d1ea698295adb2c0aaafce0bd9390786eb7156b982bafe26a", "role": "preregistered complete small independence-four target and falsifiers"},
+        {"path": "experiments/E054-r5-small-alpha-four-obstruction-formalization-result.md", "bytes": 5721, "sha256": "e09b5f5240643e3ffd2a93f7970beb484f00df92c6e80f68ca1dcad5f17cedba", "role": "exact kernel-checked theorem boundary"},
+        {"path": "formal/lean/Erdos617/AlphaFourSmall.lean", "bytes": 46530, "sha256": "7b97758e9150e3e67b36c78712128bb284dcff3151ad4f8d691690d44762614f"},
+        {"path": "repro/run_e054_lean_audit.py", "bytes": 6378, "sha256": "05da44f50d0e45b5e673efa51a9214da0c2d31d08dee1ffdb11ab9ae508f2ed0", "role": "strict fresh-build, source-safety, warning, and assumption auditor"},
+        {"path": "artifacts/e054_lean_build.log", "bytes": 22678, "sha256": "9fd72183504e12a2a405ff2212dc952736aceb2d24494535ee6aab07b803e8e4", "role": "fresh local-build-free mirror build and 186-theorem assumption audit"},
+        {"path": "artifacts/e054_lean_resources.txt", "bytes": 996, "sha256": "cebc2613406b9a714bbe96374c4d9b3626c61c7d9304f1f77cd74ec29af02d29", "role": "retained wall-time and peak-memory record"}
+      ],
+      "commands": [
+        "rsync -a --link-dest=/path/to/repo/formal/lean --exclude='/.lake/build' --exclude='/Check.lean' /path/to/repo/formal/lean/ /path/to/fresh/mirror/",
+        "python3 repro/run_e054_lean_audit.py --project /path/to/fresh/mirror --lake /path/to/lean-4.32.0/bin/lake --log artifacts/e054_lean_build.log --require-no-local-build"
+      ],
+      "expected_outputs_and_falsification": "The Lean kernel must prove all three exact small independence-four ranges, including both exhaustive order-21 degree-five complementary-chromatic branches, with no warning, placeholder, added axiom, unsafe shortcut, native computation, omitted minimum-degree case, invalid common-avoider selection, equality-accounting gap, graph-catalog premise, SAT premise, Kang--Pikhurko premise, or cover-number gap. All 186 theorem queries may use only the three allowed logical foundations.",
+      "id": "E054-R5-SMALL-ALPHA-FOUR-OBSTRUCTION-FORMALIZATION",
+      "input_space": "Every finite admissible simple graph with no independent five-set at orders twenty-one, twenty-two, and twenty-three, including every minimum-degree branch and both complementary chromatic cases at the order-twenty-one endpoint.",
+      "mathematical_question": "Can the complete small independence-four obstruction be proved in the pinned Lean kernel from E048--E053 without the E033 catalogs, Kang--Pikhurko, SAT, or an assumed finite classification?",
+      "resource_cap": "The current execution window, 8 GiB, and the pinned Lean 4.32.0/mathlib toolchain.",
+      "result": "PARTIAL-CERTIFIED: admissible IndepSetFree-5 graphs have at least 62, 59, and 55 edges at orders 23, 22, and 21. Both order-21 degree-five complementary-chromatic branches are closed directly. A fresh local-build-free 1,312-job audit checks 186 exported theorems with zero warnings or forbidden source constructs and no foundations beyond propext, Classical.choice, and Quot.sound.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Explicit minimum-degree propagation; direct three-colorable common-avoider and forbidden-clique proof; direct order-fifteen lower bound; exact non-three-colorable accounting, pointwise degree equality, and minimum-cover contradiction; fresh local-build-free mirror; complete source, warning, and axiom audit.",
+      "why_high_information": "This removes the complete small independence-four obstruction and leaves edge equalization, the later recursive contradiction, and the finite-certificate bridge as the remaining fixed-r=5 kernel obligations."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E055-r5-edge-equalization-low-degree-formalization-plan.md", "bytes": 4886, "sha256": "efa90a2a22a290f4c08e708a85c30719e1ca2a92ee72066c312073ea883390d3", "role": "preregistered conditional equalization and low-degree target"},
+        {"path": "experiments/E055-r5-edge-equalization-low-degree-formalization-result.md", "bytes": 6502, "sha256": "afc3579fee2f3fe1740743d2428bb3921af3ce0a22f94cca6892e6c256497a4c", "role": "exact kernel-checked conditional theorem boundary"},
+        {"path": "formal/lean/Erdos617/EdgeEqualization.lean", "bytes": 30006, "sha256": "9c7105d7c12e31de458efb2b0f8a3e96708b963188379e2d81419450c3d21a98"},
+        {"path": "repro/run_e055_lean_audit.py", "bytes": 6378, "sha256": "45a60f670b7313f8ac6a9ac6346bad2e9a935f5b3429401c143c4d5ab42072bb", "role": "strict fresh-build, source-safety, warning, and assumption auditor"},
+        {"path": "artifacts/e055_lean_build.log", "bytes": 23911, "sha256": "d65ea6533a21efca3712fc96fac108fd1a2dcd45a194f1a0d2499e9dfe6b1077", "role": "fresh local-build-free mirror build and 195-theorem assumption audit"},
+        {"path": "artifacts/e055_lean_resources.txt", "bytes": 995, "sha256": "468966095e02dea48a1e03621512610ca400dbc5492cf9d38566425180e4c16f", "role": "retained wall-time and peak-memory record"}
+      ],
+      "commands": [
+        "rsync -a --link-dest=/path/to/repo/formal/lean --exclude='/.lake/build' --exclude='/Check.lean' /path/to/repo/formal/lean/ /path/to/fresh/mirror/",
+        "python3 repro/run_e055_lean_audit.py --project /path/to/fresh/mirror --lake /path/to/lean-4.32.0/bin/lake --log artifacts/e055_lean_build.log --require-no-local-build"
+      ],
+      "expected_outputs_and_falsification": "Conditional only on the exact finite special-Brooks proposition, the Lean kernel must derive pointwise 65-edge equalization, exclude every minimum-degree-two/three recursive branch, and expose the exact isolated-K5 order-21 residual with no warning, placeholder, added axiom, unsafe shortcut, native computation, omitted minimum-degree case, invalid edge-sum argument, unproved equality propagation, or hidden residual-degree inheritance. All 195 theorem queries may use only the three allowed logical foundations.",
+      "id": "E055-R5-EDGE-EQUALIZATION-LOW-DEGREE-FORMALIZATION",
+      "input_space": "Every color graph of every hypothetical five-color counterexample on Fin 26, under the explicit finite special-Brooks proposition, including the degree-one exclusion and all nested residual minimum degrees in the degree-two and degree-three branches.",
+      "mathematical_question": "Can edge equalization, the complete low-degree recursion, and the first exact isolated-K5 residual be proved in the pinned Lean kernel conditional only on the separately certificate-checked finite special-Brooks proposition?",
+      "resource_cap": "The current execution window, 8 GiB, and the pinned Lean 4.32.0/mathlib toolchain.",
+      "result": "PARTIAL-CERTIFIED: as a kernel-checked implication from R5SpecialBrooksObstruction, every color has exactly 65 edges, minimum degrees two and three are impossible, and every color graph has an isolated K5 with an admissible order-21, 55-edge IndepSetFree-5 residual of minimum degree at least four. A fresh local-build-free 1,313-job audit checks 195 exported theorems with zero warnings or forbidden source constructs and no foundations beyond propext, Classical.choice, and Quot.sound.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Direct minimum-vertex selection and degree-one exclusion; exact global edge-sum equalization; two nested isolated-clique recursions; complete residual degree tables; explicit exterior neighbor-set equivalence; fresh local-build-free mirror; complete source, warning, and axiom audit.",
+      "why_high_information": "This removes edge equalization and every low-degree branch from the remaining mathematical proof, leaving only the order-21 residual recursion and the independent certificate-to-Lean bridge."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E056-r5-residual-degree-four-formalization-plan.md", "bytes": 4858, "sha256": "701c412330fcfa5690a943b37ed574334d0591d532c1d5d839d052a96b72a39b", "role": "preregistered complete residual minimum-degree-four target and falsifiers"},
+        {"path": "experiments/E056-r5-residual-degree-four-formalization-result.md", "bytes": 7499, "sha256": "0f7ce00659650219a390cd4283c630759bea6f893b977f715068e37aa6e0e5bd", "role": "exact kernel-checked theorem boundary"},
+        {"path": "formal/lean/Erdos617/ResidualDegreeFour.lean", "bytes": 50971, "sha256": "9bebfec6adb1cfa18f30cdc3ac88691d710ba8078741c656fce401002e55b2aa"},
+        {"path": "repro/run_e056_lean_audit.py", "bytes": 6381, "sha256": "5a2281af859f920db302c1c73a2421641825ddc9046efeb23f3ff81922e39cb9", "role": "strict fresh-build, source-safety, warning, and assumption auditor"},
+        {"path": "artifacts/e056_lean_build.log", "bytes": 25574, "sha256": "2ba29e88cabc093ec3e49ddbc83e8075e3497e3e36f341d5535d6878dffe637e", "role": "fresh local-build-free mirror build and 208-theorem assumption audit"},
+        {"path": "artifacts/e056_lean_resources.txt", "bytes": 995, "sha256": "14562220d627df2f11eff56e10931cd3fc81d2cbf3af7d5b592b95d9f9f0ae1d", "role": "retained wall-time and peak-memory record"}
+      ],
+      "commands": [
+        "rsync -a --link-dest=/path/to/repo/formal/lean --exclude='/.lake/build' --exclude='/Check.lean' /path/to/repo/formal/lean/ /path/to/fresh/mirror/",
+        "python3 repro/run_e056_lean_audit.py --project /path/to/fresh/mirror --lake /path/to/lean-4.32.0/bin/lake --log artifacts/e056_lean_build.log --require-no-local-build"
+      ],
+      "expected_outputs_and_falsification": "The Lean kernel must eliminate the complete residual minimum-degree-four branch, including the nested order-16 degree-four/five split, the bipartite and 19/20-edge order-ten complement cases, the five-edge finite check, unique excess, cover intersection, and final six-set, with no warning, placeholder, added axiom, unsafe shortcut, native computation, omitted edge-count case, invalid equality propagation, or cover-transport error. All 208 theorem queries may use only the three allowed logical foundations.",
+      "id": "E056-R5-RESIDUAL-DEGREE-FOUR-FORMALIZATION",
+      "input_space": "Every finite admissible simple graph on 21 vertices with 55 edges, no independent five-set, and minimum degree at least four, including every nested order-16 and order-ten exterior branch arising from a degree-four vertex.",
+      "mathematical_question": "Can the complete minimum-degree-four branch of E055's exact order-21 residual be proved directly in the pinned Lean kernel, including the canonical minimum-cover intersection and six-set contradiction?",
+      "resource_cap": "The current execution window, 8 GiB, and the pinned Lean 4.32.0/mathlib toolchain.",
+      "result": "PARTIAL-CERTIFIED: every exact admissible order-21, 55-edge IndepSetFree-5 residual of minimum degree at least four actually has minimum degree at least five. A fresh local-build-free 1,314-job audit checks 208 exported theorems with zero warnings or forbidden source constructs and no foundations beyond propext, Classical.choice, and Quot.sound.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Exact isolated-K5 equality reduction; order-11 degree-four exclusion; complete order-ten bipartite/19/20-edge split; transparent five-edge finite certificate; pointwise equality and unique-excess accounting; isomorphism-invariant minimum-cover intersection; final six-set contradiction; fresh local-build-free mirror; complete source, warning, and axiom audit.",
+      "why_high_information": "This discharges one of the two final residual minimum-degree branches and leaves only the residual degree-five recursion plus the independent special-Brooks certificate-to-Lean bridge before the conditional fixed-r=5 contradiction can be composed."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E057-r5-residual-degree-five-formalization-plan.md", "bytes": 4941, "sha256": "659bd364046fdeedd8dd082f5746ddc9c6086107ddaae21c10d477136d52a0fd", "role": "preregistered complete residual minimum-degree-five target and falsifiers"},
+        {"path": "experiments/E057-r5-residual-degree-five-formalization-result.md", "bytes": 5903, "sha256": "a1b58888ffd256494df7781ece89e3bf3a1da5b9087617ed59b067ef1d71e96a", "role": "exact kernel-checked theorem and conditional fixed-r=5 boundary"},
+        {"path": "formal/lean/Erdos617/ResidualDegreeFive.lean", "bytes": 52585, "sha256": "ab284c3e0f493fb61d4d467469da4d883b7feb40cb792f08b1feaaca90843c2f"},
+        {"path": "repro/run_e057_lean_audit.py", "bytes": 6402, "sha256": "eb35541c4272abb099f8075f51359f5c9da530c205863733c95cbd684949fc07", "role": "strict fresh-build, source-safety, warning, and assumption auditor"},
+        {"path": "artifacts/e057_lean_build.log", "bytes": 27439, "sha256": "328d40d482fcc8b5bce6b52f2c7bbeef4f7ca49e207531bffbd17c0ee7e410ce", "role": "fresh local-build-free mirror build and 223-theorem assumption audit"},
+        {"path": "artifacts/e057_lean_resources.txt", "bytes": 953, "sha256": "ea527a2d3311c3e9a9d9bd32db625293a94e2b344dd62d3df429a721db394c18", "role": "retained wall-time and peak-memory record"}
+      ],
+      "commands": [
+        "rsync -a --link-dest=/path/to/repo/formal/lean --exclude='/.lake/build' --exclude='/Check.lean' /path/to/repo/formal/lean/ /path/to/fresh/mirror/",
+        "python3 repro/run_e057_lean_audit.py --project /path/to/fresh/mirror --lake /path/to/lean-4.32.0/bin/lake --log artifacts/e057_lean_build.log --require-no-local-build"
+      ],
+      "expected_outputs_and_falsification": "The Lean kernel must eliminate both exact order-15 exterior edge counts and all four structural subcases, compose E056's degree-four result, and derive the fixed-r=5 upper theorem with only R5SpecialBrooksObstruction as an explicit premise. Any omitted E053 alternative, invalid common avoider, equality/excess gap, bad one-cross endpoint, incomplete cover transport, incorrect six-set count, warning, placeholder, added axiom, unsafe shortcut, unchecked native computation, or nonstandard logical foundation falsifies promotion. All 223 theorem queries may use only the three allowed logical foundations.",
+      "id": "E057-R5-RESIDUAL-DEGREE-FIVE-FORMALIZATION",
+      "input_space": "Every finite admissible simple graph on 21 vertices with 55 edges, no independent five-set, and minimum degree at least five; every 35/36-edge order-fifteen exterior structure; and every color graph residual exported by E055.",
+      "mathematical_question": "Can the last residual branch and the conditional fixed-r=5 upper theorem be proved in the pinned Lean kernel, leaving only the independently certificate-checked special-Brooks proposition as an explicit premise?",
+      "resource_cap": "The current execution window, 8 GiB, and the pinned Lean 4.32.0/mathlib toolchain.",
+      "result": "PARTIAL-CERTIFIED: no exact admissible order-21, 55-edge IndepSetFree-5 residual of minimum degree at least four exists. Conditional only on R5SpecialBrooksObstruction, Lean proves no Fin-26 five-color counterexample, R5Upper, and Problem617At 5. A fresh local-build-free 1,315-job audit checks 223 exported theorems with zero warnings or forbidden source constructs and no foundations beyond propext, Classical.choice, and Quot.sound.",
+      "status": "PARTIAL-CERTIFIED",
+      "verification_plan": "Three-colorable exterior exclusion; exact 35/36-edge split; pair-specific clique avoiders; five-edge endpoint certificate; unique-excess K1,4 reduction; one-cross endpoint extraction; canonical and independence-five cover lower bounds; final six-set contradiction; composition with E055--E056; fresh local-build-free mirror; complete source, warning, and axiom audit.",
+      "why_high_information": "This completes the graph-theoretic residual recursion and conditional fixed-r=5 upper proof. The sole remaining fixed-r=5 kernel dependency is now the precise special-Brooks certificate-to-Lean bridge."
+    },
+    {
+      "artifacts": [
+        {"path": "experiments/E058-r5-special-brooks-kernel-bridge-plan.md", "bytes": 6230, "sha256": "35088225847d123dbf43114af2f83d2d63d933ae66abc1f164b791f0a98c3309", "role": "preregistered complete LRAT, encoding, and symmetry bridge target"},
+        {"path": "experiments/E058-r5-special-brooks-kernel-bridge-result.md", "bytes": 10904, "sha256": "795f90cd4c0840f15929dcccdcaaa3c107114ea0810a4f8a429f99d34b8a4ace", "role": "exact theorem, evidence, benchmark-failure, trust, AI-disclosure, and scope record"},
+        {"path": "formal/lean/E058SpecialBrooksCoverage.lean", "bytes": 3639, "sha256": "4d2e8c079f7a5dfa34d533bd716fad8c9b159bb8604f4e3eef521af761384e24", "role": "unconditional special-Brooks obstruction and Problem617At 5 composition"},
+        {"path": "artifacts/e058_special_brooks_kernel_bridge/fresh_audit/transcripts/e058-clean-start-audit-receipt.json", "bytes": 4762, "sha256": "d1b00435407e6811bb5e128bb5dbdc953e0a71ba01dacacc2b999b7b7a1bbddd", "role": "raw clean-start theorem-audit receipt"},
+        {"path": "artifacts/e058_special_brooks_kernel_bridge/fresh_audit/transcripts/e058-clean-start-sequence-receipt.json", "bytes": 1708, "sha256": "fe098ddd671c090586fe17d1d719e82edc3d4be8bc6b625234d78107b328d665", "role": "validated exact clean-start and resume provenance"},
+        {"path": "artifacts/e058_special_brooks_kernel_bridge/fresh_audit/work/fresh-audit-receipt.json", "bytes": 90808, "sha256": "7aa6cf6d38d3a38f1fa42867d15c1ebd48a8d6e191a35e69c37aff0fac6c0326", "role": "hardened final-source theorem-audit receipt"},
+        {"path": "artifacts/e058_special_brooks_kernel_bridge/fresh_audit/collection-receipt.json", "bytes": 285338, "sha256": "3a6613e93d4620d9a66b0fd1fe97405062d977d53a5aa335dff45afc05cd0a1b", "role": "pre-redaction 949-file raw audit-evidence inventory; see PUBLICATION_REDACTIONS.md"},
+        {"path": "artifacts/e058_special_brooks_kernel_bridge/exact_head_fresh_audit/work/fresh-audit-receipt.json", "bytes": 91912, "sha256": "789acb2bc829fcba0a5656fabca5a37d9d4fdd2b493858039ad0081cc37032d1", "role": "primary uninterrupted exact-commit no-local-build theorem-audit receipt"},
+        {"path": "artifacts/e058_special_brooks_kernel_bridge/exact_head_fresh_audit/work/cores/receipt.json", "bytes": 180269, "sha256": "d5c4413e2843d7855148c63c78501a61e1e281893a339f23196f76108f422c2c", "role": "exact-commit 89-core dual-check and corruption-test aggregate"},
+        {"path": "artifacts/e058_special_brooks_kernel_bridge/exact_head_fresh_audit/work/kernel/kernel-aggregate-receipt.json", "bytes": 574492, "sha256": "a9e8eb097cb4e2a3579d2039f6ee03630f89baef44960831dd044afae8e7bbd0", "role": "path-redacted public view of exact-commit 89-kernel-import aggregate"},
+        {"path": "artifacts/e058_special_brooks_kernel_bridge/exact_head_fresh_audit/work/semantic/semantic-aggregate-receipt.json", "bytes": 403851, "sha256": "1f27466d8624875520a168df8520d6c5514dc679e233a88ce90da9181b8bba68", "role": "path-redacted public view of exact-commit 89 graph-semantic closure aggregate"},
+        {"path": "artifacts/e058_special_brooks_kernel_bridge/exact_head_fresh_audit/transcripts/e058-exact-head-fresh-audit.log", "bytes": 120634, "sha256": "ba1824a598c4dd40655116a9ad426f514d19361d3e2bf9351a5761c2a2b0cfea", "role": "path-redacted public view of complete uninterrupted exact-commit audit transcript"},
+        {"path": "artifacts/e058_special_brooks_kernel_bridge/exact_head_fresh_audit/collection-receipt.json", "bytes": 282926, "sha256": "2f9a1d9e4027998eb3405a2db92f2130886f4eac7fd3137c4db36325eee7c047", "role": "pre-redaction 935-file raw audit-evidence inventory; see PUBLICATION_REDACTIONS.md"},
+        {"path": "paper/erdos617-r5-formal-verification.pdf", "bytes": 390401, "sha256": "c248918bde85c9a0306c13e751b613760be88f02b9474b1565af8662a1d5a543", "role": "twice-built byte-identical 11-page self-contained preprint"},
+        {"path": "AI_USAGE.md", "bytes": 1432, "sha256": "4d873a4df51bfc27f4c4e748cf530cd57ae9041d9d59e9816dd99d8bb8ae3f19", "role": "material OpenAI Codex assistance disclosure"},
+        {"path": "LICENSE", "bytes": 11358, "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30", "role": "Apache-2.0 project license approved by Ramazan Kara"},
+        {"path": "PUBLICATION_REDACTIONS.md", "bytes": 1868, "sha256": "275aa4a66e2460aa76dfaf2873717dca2e42235c6df791186a8b4f3decbd9816", "role": "exact public path-redaction boundary, counts, and hash interpretation"},
+        {"path": "REPRODUCE_E058.md", "bytes": 9089, "sha256": "a9f8c423502f542be59a5bf6243ead781d6033a80c90292b23bc75f2143fb9f0", "role": "complete environment, exact-commit replay, benchmark-outcome, redaction, and release-overlay instructions"}
+      ],
+      "commands": [
+        "make verify-e058-unit",
+        "python3 repro/run_e058_branch02_benchmark.py --project \"$PWD\" --lake \"$E058_LAKE\" --output-directory /absolute/path/to/empty/benchmark-output",
+        "python3 repro/run_e058_special_brooks_kernel_audit.py --project /absolute/path/to/fresh/mirror --lake /absolute/path/to/lean-4.32.0/bin/lake --log /absolute/path/to/e058-fresh-audit.log --require-no-local-build",
+        "python3 repro/write_e058_scoped_hashes.py --repository \"$PWD\"",
+        "make -C paper clean all"
+      ],
+      "expected_outputs_and_falsification": "The theorem audit must exit zero with 89 regenerated RUP cores accepted by both external checkers, 356 deliberate corruption rejections, 89 kernel imports, 89 semantic closures, eight coverage modules, 192 assumption queries, zero warnings, zero forbidden constructs, and only propext, Classical.choice, and Quot.sound. Any missing dependency, changed literal, bad remap, RAT hint, accepted corruption, checker disagreement, unproved auxiliary-variable interpretation, omitted orbit, hidden axiom, warning, unsafe shortcut, or hash mismatch falsifies promotion. The separate raw branch-02 timing diagnostic failed its fixed 300-second cap, so no benchmark speedup is claimed; this is not a theorem premise.",
+      "id": "E058-R5-SPECIAL-BROOKS-KERNEL-BRIDGE",
+      "input_space": "Every 5-regular admissible simple graph on Fin 26 with no clique or independent set of size six, and the exact 89-certificate exhaustive E038/E042/E043/E045 branch inventory.",
+      "mathematical_question": "Can the complete externally checked finite special-Brooks obstruction be converted into an unconditional theorem in the pinned Lean kernel with no unproved encoding or symmetry premise?",
+      "resource_cap": "Five minutes and 8 GiB for the preregistered branch-02 raw/core comparison; the current execution window and pinned Lean toolchain for the complete bridge.",
+      "result": "MACHINE-CERTIFIED: one uninterrupted no-local-build audit of exact commit d19a0cf786a0fa714289830f276cf406408ab65b regenerated and dual-checked all 89 exact RUP cores, rejected all 356 corruptions, freshly imported all 89 staged proofs into Lean, closed all 89 graph-semantic branches, and exhaustively composed the result. The unconditional theorem e058Problem617AtFive : Problem617At 5 passes the exact assumption audit. The all-r conjecture remains open, r=6 through r=9 remain unverified here, and no external review is claimed. The raw branch-02 diagnostic timed out, the reduced timing was not run, and no speedup is claimed.",
+      "status": "MACHINE-CERTIFIED",
+      "verification_plan": "Deterministic backward slicing and renumbering; parser and corruption unit tests; exact source-to-core maps and hashes; pinned C and independent Python LRAT checks; staged Mathlib proof-only kernel imports and complete axiom audit; formal generic encoding correctness; formal exhaustive symmetry/relabeling coverage; one uninterrupted no-local-build replay of the exact committed final source; preservation of the earlier clean-start/resume history and failed infrastructure attempts with their qualifications; retained evidence and deterministic release packaging.",
+      "why_high_information": "This closes the sole remaining fixed-r=5 kernel premise and yields an unconditional machine-verified fixed-case theorem while preserving an exact boundary around the still-open all-r conjecture."
+    }
+  ],
+  "repository_initial_state": "Empty git repository with no commits or research files; no prior evidence was available to reproduce.",
+  "schema_version": 1
+}

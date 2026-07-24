@@ -1,0 +1,4 @@
+import E058SemanticE045Branch25Closure
+
+#print axioms E058SemanticE045Branch25Contradiction
+#check E058SemanticE045Branch25Contradiction

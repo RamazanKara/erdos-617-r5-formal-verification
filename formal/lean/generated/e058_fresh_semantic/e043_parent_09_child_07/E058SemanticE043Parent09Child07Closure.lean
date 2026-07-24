@@ -1,0 +1,26 @@
+import Erdos617.Sat.R5CoreSemantics
+import E058KernelE043Parent09Child07Stage000
+
+set_option maxHeartbeats 0 in
+lrat_reify_stored E058SemanticE043Parent09Child07Reified 3930
+  E058KernelE043Parent09Child07KernelProof.ctx
+  E058KernelE043Parent09Child07KernelProof
+
+set_option maxHeartbeats 0 in
+r5_specialize_reified E058SemanticE043Parent09Child07GraphFormula
+  full_exterior E058SemanticE043Parent09Child07Reified
+
+set_option maxHeartbeats 0 in
+r5_map_reified_core E058SemanticE043Parent09Child07NamedCore
+  full_exterior E058SemanticE043Parent09Child07GraphFormula
+  ".e058-audit/cores/e043_parent_09_child_07.cnf"
+
+set_option maxHeartbeats 0 in
+r5_close_reified_core_with_units
+  E058SemanticE043Parent09Child07Contradiction
+  full_exterior E058SemanticE043Parent09Child07NamedCore
+  ".e058-audit/cores/e043_parent_09_child_07.cnf"
+  ".e058-audit/units/e043_parent_09_child_07.cnf"
+
+#print axioms E058SemanticE043Parent09Child07Contradiction
+#check E058SemanticE043Parent09Child07Contradiction

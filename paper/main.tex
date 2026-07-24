@@ -1,0 +1,700 @@
+\documentclass[11pt,reqno,a4paper]{amsart}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage[protrusion=true,expansion=false]{microtype}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Fin}{\operatorname{Fin}}
+\newcommand{\ProblemAt}{\operatorname{Problem617At}}
+\newcommand{\IndepFree}{\operatorname{IndepSetFree}}
+\newcommand{\CliqueFree}{\operatorname{CliqueFree}}
+\newcommand{\Admissible}{\operatorname{Admissible}}
+\makeatletter
+\newcommand{\sha}[1]{%
+  \begingroup\ttfamily\small
+  \@tfor\@tempa:=#1\do{\@tempa\hspace{0pt}}%
+  \endgroup}
+\makeatother
+\newcommand{\code}[1]{\texttt{#1}}
+
+\title[Machine-verified fixed \(r=5\) case]
+{Machine verification of the fixed \(r=5\) case of Erd\H{o}s Problem 617}
+\author{Ramazan Kara}
+\date{24 July 2026}
+\subjclass[2020]{05C15, 05C35, 68V20, 03B35}
+\keywords{edge coloring, formal verification, Lean, LRAT, Erd\H{o}s problem}
+
+\begin{document}
+\hypersetup{
+  pdftitle={Machine verification of the fixed r=5 case of Erdos Problem 617},
+  pdfauthor={Ramazan Kara}
+}
+
+\begin{abstract}
+We give an independent machine verification of the fixed \(r=5\) case of an
+Erd\H{o}s--Gy\'arf\'as balanced-coloring conjecture.  In exact form, the Lean
+theorem states that every five-coloring of the unordered edges of \(K_{26}\)
+has a six-vertex set on which some color is absent.  The mathematical source
+is Robert Sneiderman's 2026 preprint.  The contribution reported here is an
+independent formal and certificate verification: the coloring semantics,
+graph reductions, extremal endpoint arguments, residual contradiction, and
+the final composition are checked in Lean 4.32.0 with a pinned mathlib
+revision.  The remaining finite special-Brooks obstruction is split into 89
+exhaustive branches.  Each branch has a RUP-only LRAT certificate checked by
+two external checkers and imported as a propositional theorem into Lean; a
+kernel-checked semantic and symmetry bridge connects these theorems to the
+unrestricted graph proposition.  A fresh audit checks 89 kernel imports, 89
+graph-semantic closures, complete branch coverage, and 192 assumption
+queries.  The final theorem uses only \(\mathsf{propext}\),
+\(\mathsf{Classical.choice}\), and \(\mathsf{Quot.sound}\).
+
+This verifies only the fixed \(r=5\) case.  It does not settle the
+conjecture for all \(r\geq3\), which remains open.
+\end{abstract}
+
+\maketitle
+
+\begin{center}
+\fbox{\parbox{0.91\textwidth}{\centering
+\textbf{Scope notice.}
+The machine-verified theorem in this paper is \(\ProblemAt(5)\) only.
+The unrestricted all-\(r\) Erd\H{o}s Problem 617 conjecture remains open.
+No claim of independent external review is made.}}
+\end{center}
+
+\medskip
+\noindent\textbf{Attribution and provenance.}
+The original mathematical proof is due to Robert Sneiderman and appears in
+the Robby955 preprint repository at pinned commit
+\sha{735c2eeffcb5c8abe92f8a6be04be2fa3c8bb6ab}
+\cite{Sneiderman2026}.  This paper describes a separate formal-verification
+project.  The formalization is not represented as authorship of the original
+mathematical proof, nor as external review of that preprint.
+
+\section{The fixed theorem and its boundary}
+
+Erd\H{o}s and Gy\'arf\'as asked whether the following assertion holds for
+every integer \(r\geq3\): whenever the edges of \(K_{r^2+1}\) are colored
+with \(r\) colors, some \(r+1\) vertices induce a complete graph on which at
+least one color is absent \cite{ErdosGyarfas1999,Erdos1999}.  The question is
+listed as Erd\H{o}s Problem 617 \cite{ErdosProblems617}.
+
+For finite types \(V\) and \(C\), an edge coloring is a total function on the
+unordered, non-diagonal pairs of vertices,
+\[
+  \chi:\binom V2\longrightarrow C.
+\]
+For \(S\subseteq V\), a color \(c\in C\) is absent on \(S\) when
+\(\chi(e)\ne c\) for every \(e\in\binom S2\).  The fixed statement checked in
+this project is the following.
+
+\begin{theorem}[Fixed \(r=5\) upper theorem]\label{thm:r5}
+For every map
+\[
+  \chi:\binom{[26]}2\longrightarrow[5],
+\]
+there are \(S\in\binom{[26]}6\) and \(c\in[5]\) such that \(c\) is absent
+from every edge induced by \(S\).
+\end{theorem}
+
+The corresponding lower bound on 25 vertices is the standard affine
+construction.  Take \(V=\mathbb F_5^2\).  The six parallel classes of affine
+lines are indexed by the five slopes and the vertical direction.  Merge two
+classes and use the other four as individual colors.  Every six points
+contain two points on a common line in each of the five resulting color
+classes.  Thus every six-set sees every color on \(K_{25}\).  Together with
+Theorem~\ref{thm:r5}, this gives the equivalent set-coloring Ramsey identity
+\(R(6;5,4)=26\), as explained in \cite{Sneiderman2026}.
+
+\begin{remark}[Why this is not a solution of the full problem]
+The formal development defines
+\[
+  \ProblemAt(r) :=
+  \text{the upper assertion on }K_{r^2+1}\text{ with }r\text{ colors},
+\]
+and separately defines
+\[
+  \operatorname{Problem617}:=
+  \forall r,\ 3\le r\longrightarrow\ProblemAt(r).
+\]
+The exported theorem has type \(\ProblemAt(5)\), not
+\(\operatorname{Problem617}\).  A positive result for one fixed value cannot
+be generalized by changing a numeral.
+\end{remark}
+
+\section{Exact Lean statement}
+
+The formal model uses
+\code{SimpleGraph.TopEdgeLabeling}.  This prevents two common specification
+errors: loops are not silently colored, and the two orientations of an edge
+cannot receive different colors.  The central definitions, with notation
+slightly compressed, are:
+\begin{align*}
+  \operatorname{ColorPresent}(\chi,S,c)
+    &:\!\!\iff \exists u,v\in S,\ u\ne v\ \wedge\ \chi(\{u,v\})=c,\\
+  \operatorname{ColorAbsent}(\chi,S,c)
+    &:\!\!\iff \neg\operatorname{ColorPresent}(\chi,S,c),\\
+  \operatorname{UpperStatement}(V,C,k)
+    &:\!\!\iff \forall\chi,\ \exists S,\ |S|=k\ \wedge{}\\[-2pt]
+    &\hspace{5.2em}\exists c,\ \operatorname{ColorAbsent}(\chi,S,c).
+\end{align*}
+The fixed theorem is definitionally
+\[
+ \code{R5Upper}
+ =\operatorname{UpperStatement}(\Fin(26),\Fin(5),6),
+\]
+while
+\[
+ \code{Problem617At}\ r
+ =\operatorname{UpperStatement}(\Fin(r^2+1),\Fin(r),r+1).
+\]
+Lean checks by reflexivity that
+\(\code{Problem617At}\ 5\leftrightarrow\code{R5Upper}\).
+
+For each color \(c\), the color graph \(G_c\) contains exactly the edges
+colored \(c\).  The development proves
+\[
+ \operatorname{ColorAbsent}(\chi,S,c)
+ \ \longleftrightarrow\
+ G_c.\operatorname{IsIndepSet}(S),
+\]
+and consequently
+\[
+ \operatorname{IsCounterexample}(6,\chi)
+ \ \longleftrightarrow\
+ \forall c,\ G_c.\IndepFree(6).
+\]
+These are ordinary propositions proved from the definitions; the
+certificate layer does not redefine the original coloring statement.
+
+The final declarations are:
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Lean declaration & Type\\
+\midrule
+\code{e058R5SpecialBrooksObstruction}
+  & \code{R5SpecialBrooksObstruction}\\
+\code{e058NoR5Counterexample}
+  & \(\neg\exists\chi,\ \code{IsCounterexample 6 }\chi\)\\
+\code{e058R5Upper}
+  & \code{R5Upper}\\
+\code{e058Problem617AtFive}
+  & \code{Problem617At 5}\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Mathematical architecture}
+
+\subsection{Color graphs and admissibility}
+
+Assume for contradiction that every six vertices see all five colors.
+For a fixed color graph \(G\), every six-set \(S\) satisfies
+\begin{equation}\label{eq:local}
+  1\le e(G[S])\le11.
+\end{equation}
+The lower bound says that the fixed color occurs.  The upper bound follows
+because each of the other four colors occupies at least one of the 15
+edges.  In particular,
+\[
+  \alpha(G)\le5,\qquad \omega(G)\le5.
+\]
+The formal development calls a graph \emph{admissible} when every six
+vertices span at most 11 edges.  Admissibility is inherited by induced
+subgraphs.
+
+The five color graphs partition \(E(K_{26})\), so a least color has at most
+\(325/5=65\) edges.  The mathematical proof uses Brooks's theorem and
+specialized extremal estimates to confine its minimum degree
+\cite{Brooks1941,KangPikhurko2005,Sneiderman2026}.  In the formal
+development, the imported general theorems are replaced by direct checked
+specializations.  The only finite endpoint isolated as a proposition is
+\begin{equation}\label{eq:brooks}
+\begin{gathered}
+\operatorname{R5SpecialBrooksObstruction}:\\
+\nexists\,G\text{ on }\Fin(26)\text{ that is 5-regular and admissible,}\\
+G.\CliqueFree(6)\quad\text{and}\quad G.\IndepFree(6).
+\end{gathered}
+\end{equation}
+Sections~\ref{sec:certificates} and \ref{sec:bridge} explain how
+\eqref{eq:brooks} is proved in the kernel rather than assumed.
+
+\subsection{Independence layers}
+
+The non-certificate portion of the formal proof develops three layers of
+induced-subgraph estimates.  We record their roles because they explain the
+later residual recursion.
+
+\begin{enumerate}[leftmargin=2.2em]
+\item If \(F\) is admissible, \(\alpha(F)\le2\), and \(n=|V(F)|\ge12\),
+then the complement has maximum degree at most four, giving
+\[
+  e(F)\ge\binom n2-2n.
+\]
+The order-11 endpoint is proved separately: \(e(F)\ge36\).
+
+\item For admissible graphs with \(\alpha(F)\le3\), the formal proof
+propagates the first layer and proves exact lower bounds 45, 50, and 54 at
+orders 16, 17, and 18.  The order-10 equality analysis identifies the
+balanced two-fold blow-up of \(C_5\) and its exact cover structure.
+
+\item For admissible graphs with \(\alpha(F)\le4\), the next propagation
+gives lower bounds 55, 59, and 62 at orders 21, 22, and 23.  Exact
+order-15 structures at 35 and 36 edges supply the equality cases required
+by the final argument.
+\end{enumerate}
+
+These statements are quantified over arbitrary finite simple graphs with the
+displayed hypotheses.  The small transparent enumerations use kernel
+\code{decide}, not \code{native\_decide}; no graph catalog or solver result is
+an unmentioned premise.
+
+\subsection{Equalization and residual contradiction}
+
+Conditional on \eqref{eq:brooks}, the least-color reduction yields a vertex
+of degree two, three, or four.  The independence-layer bounds exclude
+degrees two and three.  They also force every color graph to have exactly 65
+edges.  Equality in the neighborhood accounting isolates a \(K_5\), leaving
+an induced graph \(H\) on 21 vertices with
+\[
+  e(H)=55,\qquad \alpha(H)\le4,\qquad
+  \delta(H)\ge4,
+\]
+and with inherited admissibility.
+
+The degree-four residual branch peels a second isolated \(K_5\) and uses the
+order-10 and order-11 endpoints to prove \(\delta(H)\ge5\).  The degree-five
+branch uses the exact order-15 alternatives, common-avoider lemmas, cover
+transport through the canonical two-fold \(C_5\) blow-up, and the local
+six-set cap to derive a contradiction.  Lean therefore proves
+\[
+  \operatorname{R5SpecialBrooksObstruction}
+  \longrightarrow
+  \neg\exists\chi,\operatorname{IsCounterexample}(6,\chi),
+\]
+and composes this implication with the exact coloring semantics.
+
+The proof-module boundary is summarized in
+Table~\ref{tab:formal-layers}.
+\begin{table}[ht]
+\centering
+\caption{Principal non-certificate formal layers.}
+\label{tab:formal-layers}
+\footnotesize
+\begin{tabular}{@{}
+  >{\raggedright\arraybackslash}p{0.18\textwidth}
+  >{\raggedright\arraybackslash}p{0.37\textwidth}
+  >{\raggedright\arraybackslash}p{0.37\textwidth}@{}}
+\toprule
+Stage & Lean module & Checked role\\
+\midrule
+Semantics & \code{Basic} & Exact coloring and color-graph equivalence\\
+Large terminals & \code{AlphaTwoLarge}, \code{AlphaPropagation}
+  & Direct admissible density bounds\\
+Exact endpoints & \code{AlphaTwoEleven}, \code{OrderTenStructure}
+  & Orders 10 and 11\\
+Middle layers & \code{AlphaThreeSmall}, \code{OrderFifteenStructure}
+  & Independence three and exact order 15\\
+Last layer & \code{AlphaFourSmall}
+  & Independence four\\
+Equalization & \code{EdgeEqualization}
+  & 65 edges and first isolated \(K_5\)\\
+Residuals & \code{ResidualDegreeFour}, \code{ResidualDegreeFive}
+  & Final contradiction, conditional on \eqref{eq:brooks}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{The 89 certificate branches}\label{sec:certificates}
+
+\subsection{Exhaustive finite split}
+
+Fix a graph satisfying the four hypotheses of
+\eqref{eq:brooks}.  Relabel a selected vertex as 0 and its five neighbors as
+\(1,\ldots,5\).  There are 26 canonical isomorphism types for the graph
+induced by those five neighbors.  The remaining 20 vertices are sorted by
+their five-bit adjacency rows.  The difficult neighborhood type, branch 19,
+is refined by cross patterns and then by a zero-pattern anchor.  The
+complete leaf inventory is:
+\begin{center}
+\begin{tabular}{@{}lrl@{}}
+\toprule
+Family & Leaves & Meaning\\
+\midrule
+E038 & 19 & Neighborhood branches \(0,\ldots,18\)\\
+E042 & 17 & Direct cross-pattern children of branch 19\\
+E043 & 47 & Residual zero-anchor children: \(26+16+5\)\\
+E045 & 6 & Final quotient branches \(20,\ldots,25\)\\
+\midrule
+Total & 89 & Pairwise named exhaustive leaves\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Each leaf is encoded as a CNF over 325 primary graph-edge variables and
+deterministic auxiliary variables for cardinality and pattern constraints.
+The E038, E042, and E043 leaves share an allocation scheme with 3930
+variables; the six E045 leaves use a second scheme with 3920.  The
+clauses follow necessarily from regularity of degree five, admissibility,
+the absence of a six-clique or an independent six-set, and the branch's
+canonical unit assignment.  Hence unsatisfiability of every leaf excludes the
+graph family, provided both encoding soundness and branch coverage are proved.
+
+\subsection{RUP-core slicing}
+
+The branch proofs are LRAT traces containing only reverse unit-propagation
+additions.  A deterministic backward slicer starts at the final
+empty clause, follows every antecedent, retains precisely the reachable
+original and derived clauses, and renumbers them monotonically.  It rejects
+RAT hints, malformed or repeated identifiers, missing antecedents, comments
+in the kernel input, and a missing final empty clause.
+
+For every leaf, the reduced CNF/LRAT pair is accepted by:
+\begin{enumerate}[leftmargin=2.2em]
+\item the compiled C checker derived from \code{drat-trim}
+      \cite{WetzlerHeuleHunt2014}; and
+\item a separately implemented Python RUP checker.
+\end{enumerate}
+Both checkers reject two deterministic corruptions per leaf: a truncated
+proof and a forged empty clause.  This gives four negative checker outcomes
+per leaf, so the replay ledger contains 89 C checks, 89 Python checks, and 356
+negative checks.  Separate unit tests reject dependency and renumbering
+damage.  These external checks are defense in depth.  They do not replace the
+Lean import.
+
+\begin{table}[ht]
+\centering
+\caption{Aggregate original and backward-core certificate inventory.}
+\label{tab:cores}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Artifact family & Bytes & Clauses/additions\\
+\midrule
+Original CNFs (decompressed)
+  & \(2{,}709{,}936{,}427\) & \(43{,}878{,}934\) clauses\\
+Original LRATs (decompressed)
+  & \(795{,}950{,}803\) & \(1{,}274{,}831\) additions\\
+Reduced CNFs
+  & \(5{,}723{,}342\) & \(183{,}145\) clauses\\
+Reduced LRATs
+  & \(441{,}983{,}911\) & \(1{,}274{,}831\) additions\\
+Old-to-new maps
+  & \(48{,}467{,}568\) & 89 maps\\
+\bottomrule
+\end{tabular}
+\end{table}
+Every one of the \(1{,}274{,}831\) retained additions is RUP; the aggregate
+RAT count is zero.  The slicing gain comes chiefly from removing unused
+original clauses and deletion records while retaining the complete reachable
+derivation.
+
+\subsection{Lean LRAT import}
+
+Mathlib's LRAT machinery constructs a term of type
+\[
+  \code{Sat.Fmla.proof}\ \Gamma\ [\,],
+\]
+which says that every valuation satisfying the retained input formula
+\(\Gamma\) satisfies the empty clause \cite{CruzFilipeEtAl2017,mathlib2020}.
+Large proofs are split into dependency-ordered stages to bound elaborator
+memory.  Each stage imports the theorem produced by the previous stage; the
+last stage exports a named unsatisfiability theorem.  The Lean kernel checks
+all stages.  The generated theorem sources and final object files are hashed
+in per-leaf receipts.
+
+Backward slicing can delete primary input clauses that are unnecessary for a
+particular refutation.  For this reason, a hashed unit manifest is generated
+from the exact original branch formulas, not inferred from the reduced core.
+The semantic layer proves that any graph satisfying the branch hypotheses
+gives a valuation satisfying:
+\begin{enumerate}[leftmargin=2.2em]
+\item every retained primary graph clause;
+\item every retained sequential-counter clause;
+\item every retained exterior-pattern clause; and
+\item the exact canonical unit assignment.
+\end{enumerate}
+Combining this valuation theorem with the imported empty-clause theorem gives
+one graph-semantic contradiction per leaf.
+
+\section{Kernel-checked symmetry and semantic bridge}\label{sec:bridge}
+
+Certificate checking alone would prove only that 89 propositional formulas
+are unsatisfiable.  E058 therefore includes a separate proof of the route
+from an arbitrary graph in \eqref{eq:brooks} to one of those formulas.
+
+\subsection{Normalization}
+
+The development constructs an explicit vertex permutation that fixes vertex
+0 and sends its actual five-element neighborhood to
+\(\{1,2,3,4,5\}\).  It proves that graph relabeling preserves degree,
+admissibility, clique-freeness, and independence-freeness.  A second
+permutation fixes the first six vertices and lexicographically sorts the 20
+exterior rows.
+
+\subsection{Orbit coverage}
+
+Transparent generated witness tables prove that every five-vertex
+neighborhood graph belongs to one of the 26 canonical orbits.  Branch 19
+receives a separately checked cross-pattern orbit table.  The three remaining
+zero-anchor parents receive checked column and row actions and witness-child
+tables.  These computations use ordinary reducible definitions and kernel
+\code{decide}; their generator output is regenerated byte-for-byte in the
+fresh audit.
+
+The coverage modules establish:
+\begin{align*}
+ &\text{E038 leaves}\ \Longrightarrow\ \text{branches }0,\ldots,18
+   \text{ impossible},\\
+ &\text{E042/E043 leaves}\ \Longrightarrow\ \text{branch }19
+   \text{ impossible},\\
+ &\text{E045 leaves}\ \Longrightarrow\ \text{branches }20,\ldots,25
+   \text{ impossible}.
+\end{align*}
+The final composition is the following checked implication chain:
+\[
+\begin{array}{c}
+\text{89 kernel LRAT theorems}\\
+\Downarrow\\
+\text{89 graph-semantic contradictions}\\
+\Downarrow\\
+\text{26 canonical neighborhood branches impossible}\\
+\Downarrow\\
+\code{R5SpecialBrooksObstruction}\\
+\Downarrow\\
+\code{R5Upper}\ \Longleftrightarrow\ \code{Problem617At 5}.
+\end{array}
+\]
+No symmetry assumption is inserted as an axiom, and no receipt or Python
+Boolean is coerced into a theorem.
+
+\section{Fresh audit and verification level}\label{sec:audit}
+
+The recorded final release validation is one uninterrupted audit of exact
+commit
+\sha{d19a0cf786a0fa714289830f276cf406408ab65b}.  The mirror contained the
+separately compiled C checker but no local Lean build directory when the
+audit began.  The process completed every gate after 25,497.97 seconds.  Its
+receipt records zero warnings and zero forbidden source hits.  Its
+\code{fresh\_local\_build} field is true, and its
+\code{resumed\_after\_core\_replay} field is false.  The receipt's SHA-256 is
+\sha{789acb2bc829fcba0a5656fabca5a37d9d4fdd2b493858039ad0081cc37032d1}.
+
+Earlier development evidence remains retained with its original
+qualifications.  A successful clean-start sequence used post-core resume
+segments, and a later hardened final-source phase explicitly reported itself
+as a resume while revalidating retained stages, generated sources, coverage
+modules, and assumptions.  A provenance receipt binds that history to its
+legacy runner and terminal receipt.  Two later exact-source attempts that
+produced no receipt are also retained as infrastructure diagnostics: one was
+terminated at a command-session boundary, and one lacked the separately built
+C checker.  The uninterrupted exact-commit run removes the resume
+qualification from the final-source evidence without rewriting this history.
+
+All successful runs pin Lean to \code{leanprover/lean4:v4.32.0} and mathlib to revision
+\sha{81a5d257c8e410db227a6665ed08f64fea08e997}.  The audit then performs the
+following gates in order:
+\begin{enumerate}[leftmargin=2.2em]
+\item regenerate the three transparent orbit-certificate sources and compare
+      them byte-for-byte;
+\item build the base library and the E058 semantic bridge with zero warnings;
+\item regenerate all 89 reduced RUP cores from the committed compressed
+      inputs;
+\item run both external checkers and all 356 corruption tests;
+\item regenerate and hash all 89 primary unit CNFs;
+\item re-split every core, regenerate each committed stage source
+      byte-for-byte, and freshly import every staged kernel proof;
+\item build all 89 graph-semantic closure theorems;
+\item compile all eight coverage modules;
+\item query the assumptions of 89 kernel theorems, 89 semantic theorems, and
+      14 coverage/final theorems; and
+\item scan every audited source for \code{sorry}, \code{admit}, project
+      \code{axiom}, \code{unsafe}, \code{native\_decide},
+      \code{ofReduceBool}, and \code{run\_tac}; compare source hashes before
+      and after the run.
+\end{enumerate}
+
+\begin{table}[ht]
+\centering
+\caption{Fresh E058 audit ledger.}
+\label{tab:audit}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Gate & Passed items\\
+\midrule
+Reduced RUP cores & 89\\
+External C/Python positive checks & \(89+89\)\\
+Deliberate corruption rejections & 356\\
+Lean kernel LRAT imports & 89\\
+Lean graph-semantic closures & 89\\
+Coverage modules & 8\\
+Assumption queries & 192\\
+Warnings & 0\\
+Forbidden source hits & 0\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Diagnostic benchmark outcome.}
+The preregistered proof-only import of the unreduced E038 branch-02
+CNF/LRAT did not complete within its 300-second cap on the final audit
+machine.  GNU \code{time} recorded exit status 124, 310.08 user seconds,
+7.57 system seconds, 5:19.34 elapsed including termination grace and cleanup,
+and peak resident memory of 5,924,372~KiB.  The exact source, empty Lean
+output, and resource log are retained.  Consequently no raw-versus-core
+speedup ratio is claimed.  The theorem-bearing reduced core was independently
+regenerated, checked, staged, and accepted by Lean in every successful E058
+audit.  This failed diagnostic performance gate is not a logical premise of
+the kernel theorem, but it is reported because it was preregistered.
+
+The assumption audit reports that
+\code{Erdos617.e058Problem617AtFive} depends exactly on
+\[
+ \{\mathsf{propext},\mathsf{Classical.choice},\mathsf{Quot.sound}\}.
+\]
+These are standard logical foundations used by mathlib.  In particular, the
+dependency list contains no \code{sorryAx} and no project-defined axiom.
+
+Under the repository's verification vocabulary, this is a
+\emph{machine-verified resolution of the fixed \(r=5\) scope}.  It is not an
+externally verified result: the formal development and this preprint have not
+yet completed independent expert review.  It is also not a resolution of the
+quantified all-\(r\) conjecture.
+
+\section{Disclosure of AI assistance}
+
+OpenAI Codex was used as an AI-assisted research and software engineering
+tool in this project.  It helped draft and revise Lean, Python, shell,
+documentation, and \LaTeX{} material; execute verification workflows; inspect
+intermediate results; and organize the reproducibility record.  The formal
+and expository output should therefore not be read as unaided human work.
+Codex is not an author and its textual assertions are not evidence for any
+mathematical claim.  The internal adversarial audit was likewise
+Codex-assisted and is not represented as independent human review.
+
+Every machine-verification claim in this paper is instead tied to committed
+review source, certificates, kernel-checked theorem objects, audit
+transcripts, and cryptographic hashes that can be replayed independently.
+Ramazan Kara directed the project, selects what may be published, and assumes
+responsibility for any published artifact and for this account.  Independent
+expert review has not yet been completed.
+
+\section{Trust boundary}
+
+It is useful to separate proof premises from reproducibility checks.
+
+\paragraph{Logically trusted.}
+The final theorem is accepted by the Lean 4 kernel.  The practical trusted
+computing base includes the Lean parser, elaborator and kernel executable,
+the operating system and hardware used to run it, and the standard logical
+axioms printed above \cite{deMouraUllrich2021}.  The pinned mathlib sources
+supply graph theory infrastructure and the LRAT proof constructor
+\cite{mathlib2020}.
+
+\paragraph{Not trusted as theorem oracles.}
+The SAT solvers that originally produced the LRAT traces are not theorem
+premises.  Neither are the Python and C external checkers, the core slicer,
+the certificate generators, the audit receipts, or hash comparisons.  An
+error in one of these tools can at worst cause it to propose a bad proof term
+or a mismatched source; the Lean kernel must still accept the resulting term,
+and the graph-semantic and coverage theorems must still type-check.
+
+\paragraph{Why hashes still matter.}
+Kernel checking establishes the proposition compiled in a particular run.
+Hashes establish that the reviewed or eventually released sources, compressed
+certificates, generated units, transcripts, and receipts are the same
+artifacts described by this paper.  They close the distribution and replay
+boundary, not the logical inference boundary.
+
+\paragraph{Excluded claims.}
+No assertion is made here about the correctness of claimed fixed cases
+\(r=6,\ldots,9\), except that they are prior work outside this verification.
+No unsuccessful search, solver agreement, or unrestricted SAT timeout is
+used as evidence.  The full statement
+\(\forall r\ge3,\ProblemAt(r)\) remains open.
+
+\section{Reproduction}\label{sec:reproduction}
+
+The local release candidate contains:
+\begin{itemize}[leftmargin=2em]
+\item all pinned Lean source files, \code{lean-toolchain},
+      \code{lake-manifest.json}, and the project lakefile;
+\item the 89 original compressed CNFs and LRAT certificates;
+\item the core slicer, both external checkers, stage generator, semantic
+      runner, complete fresh-audit runner, and their unit tests;
+\item the exact unit manifest, fresh receipts, audit source and output,
+      transcripts, resource records, and SHA-256 inventory;
+\item this complete \LaTeX{} source, bibliography, build file, and rendered
+      PDF.
+\end{itemize}
+
+From the repository root, build the small external checker and run the
+complete E058 unit-test target:
+\begin{verbatim}
+make verify-e058-unit
+\end{verbatim}
+Create a source mirror that has no \code{formal/lean/.lake/build} directory
+and run:
+\begin{verbatim}
+python3 repro/run_e058_special_brooks_kernel_audit.py \
+  --project /fresh --lake /lean-4.32.0/bin/lake \
+  --log /fresh/e058-audit.log --require-no-local-build
+\end{verbatim}
+The success line begins
+\begin{verbatim}
+E058-FRESH-LEAN-AUDIT-PASS cores=89 kernel_imports=89
+semantic_closures=89 axiom_queries=192
+warnings=0 forbidden_hits=0
+\end{verbatim}
+The retained final audit ran this command without interruption from exact
+commit \sha{d19a0cf786a0fa714289830f276cf406408ab65b}; the C checker was
+compiled first, while the local Lean build directory remained absent.  Its
+receipt has SHA-256
+\sha{789acb2bc829fcba0a5656fabca5a37d9d4fdd2b493858039ad0081cc37032d1}.
+The earlier clean-start/resume sequence, hardened replay, receipt-assembly
+failure, and two exact-source infrastructure failures remain retained and
+explicitly labeled; none is substituted for the uninterrupted receipt.
+Finally, verify the release inventory with:
+\begin{verbatim}
+sha256sum --check \
+  artifacts/e058_special_brooks_kernel_bridge/SHA256SUMS
+\end{verbatim}
+The release reproduction guide records the exact mirror command, expected
+tool hashes, receipt hashes, and required disk and memory envelope.
+
+\section{Conclusion}
+
+The checked declaration
+\[
+  \code{Erdos617.e058Problem617AtFive} :
+  \code{Problem617At 5}
+\]
+establishes that every five-coloring of \(K_{26}\) has six vertices omitting
+a color.  The result is an independent formal and certificate verification
+of the fixed-\(r=5\) theorem whose mathematical source is Sneiderman's
+preprint.  Its main verification contribution is the end-to-end bridge from
+89 LRAT certificates, through exact graph semantics and exhaustive symmetry
+coverage, to the unconditional original coloring statement.
+
+The quantified Erd\H{o}s Problem 617 conjecture for every \(r\ge3\) remains
+open.
+
+\bibliographystyle{alpha}
+\bibliography{references}
+
+\end{document}

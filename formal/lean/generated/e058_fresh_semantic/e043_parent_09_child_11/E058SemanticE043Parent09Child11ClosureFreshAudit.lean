@@ -1,0 +1,4 @@
+import E058SemanticE043Parent09Child11Closure
+
+#print axioms E058SemanticE043Parent09Child11Contradiction
+#check E058SemanticE043Parent09Child11Contradiction

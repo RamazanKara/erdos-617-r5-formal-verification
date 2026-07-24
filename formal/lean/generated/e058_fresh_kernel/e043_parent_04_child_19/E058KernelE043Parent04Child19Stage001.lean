@@ -1,0 +1,8 @@
+import E058KernelE043Parent04Child19Stage000
+
+set_option maxHeartbeats 0 in
+lrat_stage_final_file E058KernelE043Parent04Child19KernelProof E058KernelE043Parent04Child19Stage000.ctx E058KernelE043Parent04Child19Stage000
+  ".e058-audit/kernel/e043_parent_04_child_19/stages/stage_000.frontier"
+  ".e058-audit/kernel/e043_parent_04_child_19/stages/stage_001.lrat"
+
+#print axioms E058KernelE043Parent04Child19KernelProof

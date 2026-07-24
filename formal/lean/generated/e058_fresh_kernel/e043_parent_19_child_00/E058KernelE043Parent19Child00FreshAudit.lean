@@ -1,0 +1,4 @@
+import E058KernelE043Parent19Child00Stage006
+
+#check E058KernelE043Parent19Child00KernelProof
+#print axioms E058KernelE043Parent19Child00KernelProof

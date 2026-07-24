@@ -1,0 +1,4 @@
+import E058KernelE038Branch06Stage004
+
+#check E058KernelE038Branch06KernelProof
+#print axioms E058KernelE038Branch06KernelProof

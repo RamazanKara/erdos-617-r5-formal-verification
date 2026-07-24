@@ -1,0 +1,50 @@
+{
+  "access_date": "2026-07-22",
+  "sources": [
+    {
+      "sha256": "3b21b6238428b30e7ee7241d8e0d8989ed0a28c839745aac4289145c722660cd",
+      "title": "Split and balanced colorings of complete graphs",
+      "url": "https://www.renyi.hu/~gyarfas/Cikkek/92_splitandbalanced.pdf"
+    },
+    {
+      "sha256": "2f302962c5f018dc38478293df24f29429b832b061e252c19a7175598c65734e",
+      "title": "Maximum K_{r+1}-free graphs which are not r-partite",
+      "url": "https://matstud.org.ua/texts/2005/24_1/24_1_012_020.pdf"
+    },
+    {
+      "sha256": "6abc20da0f96147f959decd3cd3fbdb8d9e534a60c28acdfc671addd4f9c714c",
+      "title": "k-Saturated Graphs of Chromatic Number at Least k",
+      "url": "https://combinatorialpress.com/article/ars/Volume%20031/volume-31-paper-16.pdf"
+    },
+    {
+      "sha256": "cbca4a02094bf51b54018857bf92e75a342fee594567b40fb8485c712a888027",
+      "title": "A list version of Dirac's theorem on the number of edges in colour-critical graphs",
+      "url": "https://kostochk.web.illinois.edu/docs/2004/jgt02s.pdf"
+    },
+    {
+      "sha256": "e961dcdf544f74d570542f8aade58a0bc0ba61ad82decb6aa8ee11edf429e07f",
+      "title": "Ore's conjecture on color-critical graphs is almost true",
+      "url": "https://arxiv.org/pdf/1209.1050"
+    },
+    {
+      "sha256": "9fb3f9169187a99188a6889cd92507d020d96425926ff85af385a7778a03eb50",
+      "title": "A Brooks-Type Result for Sparse Critical Graphs",
+      "url": "https://kostochk.web.illinois.edu/docs/submit/cca18y.pdf"
+    },
+    {
+      "sha256": "47ce42a3c7116f125bada1416e90d4f40a25ce5284362c98de3077bc51fcc769",
+      "title": "The five-color case of an Erdos--Gyarfas balanced-coloring problem (TeX source at pinned commit 735c2eeffcb5c8abe92f8a6be04be2fa3c8bb6ab)",
+      "url": "https://raw.githubusercontent.com/Robby955/erdos-617-fixed-cases/735c2eeffcb5c8abe92f8a6be04be2fa3c8bb6ab/r5/main.tex"
+    },
+    {
+      "sha256": "741106d5b4ce9cd08f406096907f7fb0678afd815ed7e703bae64717165b9c81",
+      "title": "The five-color case of an Erdos--Gyarfas balanced-coloring problem (PDF at pinned commit 735c2eeffcb5c8abe92f8a6be04be2fa3c8bb6ab)",
+      "url": "https://github.com/Robby955/erdos-617-fixed-cases/blob/735c2eeffcb5c8abe92f8a6be04be2fa3c8bb6ab/r5/erdos-617-r5.pdf"
+    },
+    {
+      "sha256": "efcced39953ea11107e90db91628c0cd7616f66c112cda9db8afc2a78a12b6f9",
+      "title": "Supplied standing Codex research goal",
+      "url": "local:/PUBLICATION_REDACTED_WINDOWS_HOME/Downloads/erdos617_codex_research_goal.md"
+    }
+  ]
+}
