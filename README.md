@@ -1,5 +1,7 @@
 # Erdős Problem 617 research repository
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21535385.svg)](https://doi.org/10.5281/zenodo.21535385)
+
 **Exact status: unrestricted fixed \(r=5\)
 `MACHINE-VERIFIED-RESOLUTION`; full all-\(r\) conjecture `OPEN`.** E058
 exports the unconditional Lean declaration

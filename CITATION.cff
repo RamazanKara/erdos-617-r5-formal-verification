@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use or cite this verification, cite it as below."
+title: "Machine verification of the fixed r = 5 case of Erdős Problem 617"
+authors:
+  - family-names: Kara
+    given-names: Ramazan
+date-released: 2026-07-24
+doi: 10.5281/zenodo.21535385
+url: "https://github.com/RamazanKara/erdos-617-r5-formal-verification"
+license: Apache-2.0

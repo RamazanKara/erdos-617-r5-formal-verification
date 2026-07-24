@@ -92,3 +92,15 @@ a dated addendum, and `AI_USAGE.md` now discloses the second AI system
 involved in the revision. The `e058-r5` release tag and its five published
 assets remain the frozen originals described above and are intentionally
 unchanged.
+
+## Zenodo archival (2026-07-24)
+
+The frozen `e058-r5` capsule is independently archived on Zenodo as a
+CC-BY-4.0 preprint record: concept DOI `10.5281/zenodo.21535385` (all
+versions), version DOI `10.5281/zenodo.21535386`
+(https://zenodo.org/records/21535386). The record contains the five
+byte-exact release assets listed above; Zenodo's reported sizes and MD5
+digests match the local frozen assets, and the enclosed `SHA256SUMS` keeps
+the record self-verifying. The revised preprint on `main` is deliberately
+not part of this record; a future frozen release would be archived as a
+new Zenodo version under the same concept DOI.
