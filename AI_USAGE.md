@@ -29,9 +29,9 @@ consistency review of the preprint against the repository records on
 2026-07-24, applied a wording-only prose revision to `paper/main.tex` and
 `paper/references.bib`, and drafted public announcement texts. This is
 likewise not independent human review, and Claude's statements are not
-evidence for any mathematical claim. The `e058-r5` tag and release assets
-were built from the earlier frozen publication snapshot and do not contain
-the later revised paper bytes; the release's published source/PDF hashes
-remain the correct hashes for that immutable snapshot.
+evidence for any mathematical claim. The revised paper bytes are now on
+`main`, but tag `e058-r5` and its release assets remain the earlier frozen
+publication snapshot; the published source/PDF hashes remain correct for
+that immutable release.
 
 The all-\(r\) Erdős Problem 617 conjecture remains open.

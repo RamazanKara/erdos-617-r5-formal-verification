@@ -14,8 +14,9 @@ The build runs `latexmk` with `pdflatex` and BibTeX.  The final artifact is
 `erdos617-r5-formal-verification.pdf`.  The unrestricted all-`r` conjecture is
 not claimed.
 
-The final review build is 11 A4 pages, is 390,401 bytes, and has SHA-256
-`c248918bde85c9a0306c13e751b613760be88f02b9474b1565af8662a1d5a543`.
+The current build, after a post-release prose revision, is 11 A4 pages, is
+390,512 bytes, and has SHA-256
+`fbcd4e1b8b9fd94f91b387f417cb5a2418ee5e8e826ffc2ddb501a02b7ca0743`.
 Two clean builds produced byte-identical PDFs, the final TeX log has no
 warnings or overfull/underfull boxes, and all 11 Poppler-rendered pages were
 visually inspected.

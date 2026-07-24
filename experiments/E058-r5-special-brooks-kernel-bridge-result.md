@@ -255,3 +255,19 @@ not be described as `EXTERNALLY-VERIFIED-RESOLUTION`. No push, tag, remote
 creation, or release is authorized until Ramazan completes the requested
 cross-check and explicitly approves publication. The all-\(r\) conjecture
 remains open.
+
+## Post-release preprint prose revision (2026-07-24)
+
+After release approval, `paper/main.tex` and `paper/references.bib` received
+a wording-only revision: register cleanup of seven prose passages, one
+duplicated review-status sentence removed, the two allocation-scheme variable
+counts attributed to their leaf families, and two bibliography entries
+corrected from `@article` to `@inproceedings`. No mathematical statement,
+number, hash, attribution, or scope claim changed. The revised preprint was
+again clean-built twice to byte-identical 11-page PDFs with no TeX warnings
+and no overfull or underfull boxes, and every rendered page was visually
+inspected. The revised PDF is 390,512 bytes and has SHA-256
+`fbcd4e1b8b9fd94f91b387f417cb5a2418ee5e8e826ffc2ddb501a02b7ca0743`. The
+release-build hash recorded above remains the correct description of the
+E058 checkpoint artifact; both SHA-256 inventories now list the revised
+files.

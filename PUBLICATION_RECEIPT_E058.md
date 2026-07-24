@@ -75,8 +75,20 @@ Material OpenAI Codex assistance is disclosed in `AI_USAGE.md` and in the
 preprint; AI-generated assertions are not treated as mathematical evidence.
 
 Anthropic's Claude (via Claude Code) also performed a consistency review and
-produced a wording-only revision in the private verification lineage after the
-release staging snapshot was frozen. Those revised paper bytes are not part
-of tag `e058-r5` or its assets. The published hashes therefore remain correct;
-Claude's statements are likewise not mathematical evidence or independent
-human review.
+produced the wording-only revision described below after the release staging
+snapshot was frozen. Claude's statements are not mathematical evidence or
+independent human review.
+
+## Post-publication preprint revision (2026-07-24)
+
+The `main` branch now carries the post-release prose revision of the
+preprint: wording-only changes to `paper/main.tex`, two bibliography entry
+types corrected in `paper/references.bib`, and no mathematical, numerical,
+attribution, or scope change. The revised PDF is 390,512 bytes with SHA-256
+`fbcd4e1b8b9fd94f91b387f417cb5a2418ee5e8e826ffc2ddb501a02b7ca0743`, rebuilt
+twice to byte-identical output from the committed source of this branch.
+`paper/README.md` records the revised build, the E058 result record carries
+a dated addendum, and `AI_USAGE.md` now discloses the second AI system
+involved in the revision. The `e058-r5` release tag and its five published
+assets remain the frozen originals described above and are intentionally
+unchanged.
