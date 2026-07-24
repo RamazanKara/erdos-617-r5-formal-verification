@@ -490,12 +490,13 @@ commit
 \sha{d19a0cf786a0fa714289830f276cf406408ab65b}.  The mirror contained the
 separately compiled C checker but no local Lean build directory when the
 audit began.  The process completed every gate after 25,497.97 seconds.  Its
-receipt records zero warnings and zero forbidden source hits.  Its
-\code{fresh\_local\_build} field is true, and its
-\code{resumed\_after\_core\_replay} field is false.  The receipt's SHA-256 is
-\sha{789acb2bc829fcba0a5656fabca5a37d9d4fdd2b493858039ad0081cc37032d1}.
+receipt, with SHA-256
+\sha{789acb2bc829fcba0a5656fabca5a37d9d4fdd2b493858039ad0081cc37032d1},
+records zero warnings, zero forbidden source hits, a true
+\code{fresh\_local\_build} field, and a false
+\code{resumed\_after\_core\_replay} field.
 
-Earlier development evidence remains retained with its original
+Earlier development evidence is retained with its original
 qualifications.  A successful clean-start sequence used post-core resume
 segments, and a later hardened final-source phase explicitly reported itself
 as a resume while revalidating retained stages, generated sources, coverage
@@ -591,12 +592,11 @@ Every machine-verification claim in this paper is instead tied to committed
 review source, certificates, kernel-checked theorem objects, audit
 transcripts, and cryptographic hashes that can be replayed independently.
 Ramazan Kara directed the project, selects what may be published, and assumes
-responsibility for any published artifact and for this account.  Independent
-expert review has not yet been completed.
+responsibility for any published artifact and for this account.
 
 \section{Trust boundary}
 
-It is useful to separate proof premises from reproducibility checks.
+Proof premises and reproducibility checks are trusted differently.
 
 \paragraph{Logically trusted.}
 The final theorem is accepted by the Lean 4 kernel.  The practical trusted
@@ -667,7 +667,7 @@ compiled first, while the local Lean build directory remained absent.  Its
 receipt has SHA-256
 \sha{789acb2bc829fcba0a5656fabca5a37d9d4fdd2b493858039ad0081cc37032d1}.
 The earlier clean-start/resume sequence, hardened replay, receipt-assembly
-failure, and two exact-source infrastructure failures remain retained and
+failure, and two exact-source infrastructure failures are retained and
 explicitly labeled; none is substituted for the uninterrupted receipt.
 Finally, verify the release inventory with:
 \begin{verbatim}
