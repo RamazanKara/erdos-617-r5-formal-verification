@@ -1,6 +1,6 @@
 # Next actions
 
-## Terminal publication action
+## Terminal publication completed
 
 The fixed-\(r=5\) verification checkpoint is complete locally. E058 imports all
 89 RUP-only special-Brooks cores into generated, staged Lean proofs, checks all
@@ -29,11 +29,22 @@ release on 24 July 2026. The approved target is
 `RamazanKara/erdos-617-r5-formal-verification`; the approved project license is
 Apache-2.0, matching the Lean source headers, and a root `LICENSE` is included.
 
-The only remaining action in this terminal goal is to push the exact
-license-bearing checkpoint, create the GitHub release titled
-“Machine-verified fixed \(r=5\) case — partial result toward Erdős Problem
-617.”, upload all five release files, and independently download and
-hash-check them.
+Publication completed on 24 July 2026:
+
+- public repository:
+  [RamazanKara/erdos-617-r5-formal-verification](https://github.com/RamazanKara/erdos-617-r5-formal-verification);
+- release:
+  [Machine-verified fixed r=5 case — partial result toward Erdős Problem
+  617.](https://github.com/RamazanKara/erdos-617-r5-formal-verification/releases/tag/e058-r5);
+- tag `e058-r5`, targeting clean public snapshot
+  `3d5c835a5845309f6e91babee367f005f30d1e77`; and
+- five assets uploaded, independently downloaded, matched byte-for-byte,
+  checked by the outer and 2,829-file inner SHA-256 ledgers, and replayed
+  through all 25 E058 unit tests.
+
+The public repository uses a clean history and path-redacted audit/log views;
+see `PUBLICATION_REDACTIONS.md`. No further action remains under this terminal
+goal.
 
 ## Exact diagnostic caveat
 

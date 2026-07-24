@@ -658,7 +658,7 @@ Exact E011--E014 per-instance dimensions, raw and compressed proof hashes,
 converter statistics, failed-search records, and reproduction commands are in
 their corresponding result records under `experiments/`.
 
-## Terminal release obligation
+## Terminal release completed
 
 The fixed-\(r=5\) verification obligation is discharged by E058. Ramazan Kara
 cross-checked the theorem, evidence, paper, release payloads, exact scope, AI
@@ -667,9 +667,18 @@ disclosure, and publication metadata and explicitly approved public release on
 `RamazanKara/erdos-617-r5-formal-verification`, and the approved
 repository-wide license is Apache-2.0.
 
-The sole remaining obligation for this terminal goal is to push the exact
-license-bearing checkpoint, publish the five-file GitHub release, and
-independently download and hash-check every published asset. No \(r\ge10\),
-all-\(r\), or additional fixed-case research is authorized by this goal. The
-all-\(r\) conjecture remains open, and the pinned \(r=6,\ldots,9\) claims
-remain provisional and unverified here.
+The clean-history public repository was pushed and release `e058-r5` was
+published on 24 July 2026 from commit
+`3d5c835a5845309f6e91babee367f005f30d1e77`. All five assets were downloaded
+into a separate empty directory and matched the twice-built local final
+byte-for-byte. The outer four-payload ledger, the 2,829-file inner ledger, the
+personal-path scan, and all 25 extracted-source tests passed. Exact remote
+metadata and asset hashes are recorded in `PUBLICATION_RECEIPT_E058.md`.
+
+The public audit JSON and logs are path-redacted views; no theorem source,
+generated Lean source, certificate file, replay program, or preprint byte was
+changed by that redaction. See `PUBLICATION_REDACTIONS.md`.
+
+No \(r\ge10\), all-\(r\), or additional fixed-case research is authorized by
+this terminal goal. The all-\(r\) conjecture remains open, and the pinned
+\(r=6,\ldots,9\) claims remain provisional and unverified here.

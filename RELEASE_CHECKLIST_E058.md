@@ -63,10 +63,12 @@ release on 24 July 2026. The approved target is
 - [x] Ramazan Kara has confirmed the public repository
       `RamazanKara/erdos-617-r5-formal-verification` and Apache-2.0 license; a
       project-level `LICENSE` is included.
-- [ ] Only after that approval: create or select the GitHub repository, push
+- [x] Only after that approval: create or select the GitHub repository, push
       the reviewed snapshot, create the release, upload the source,
       certificates, audit evidence, preprint, and hash inventory, then
       independently download and hash-check every release asset.
 
-The remaining unchecked item is executed from the exact license-bearing
-checkpoint; it is not a mathematical verification premise.
+The release was published as `e058-r5` on 24 July 2026. Every asset was
+downloaded into a separate empty directory, matched the local final
+byte-for-byte, and passed both SHA-256 ledgers; the extracted source also
+passed all 25 E058 unit tests. See `PUBLICATION_RECEIPT_E058.md`.
