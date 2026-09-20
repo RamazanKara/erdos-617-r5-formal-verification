@@ -102,15 +102,38 @@ that is only an integrity intake, not a proof or certificate replay; see
 `docs/external-fixed-cases-intake-2026-07-22.md`.
 Even if all those fixed cases are correct, they do not settle every r.
 
-Run the complete local verification with:
+## Verifying the public E058 snapshot
+
+Follow [REPRODUCE_E058.md](REPRODUCE_E058.md) for the complete fixed-\(r=5\)
+proof replay, including the release archive overlays, pinned Lean/mathlib
+environment, certificate checks, and clean-start theorem audit.
+
+The checker build and focused parser/generator tests are:
 
 ```sh
-./repro/verify.sh
+make build/lrat-check-upstream
+make verify-e058-unit
 ```
 
-The verified environment used Python 3.12.3 and GCC 13.3.0 on 64-bit WSL2 Linux.
-Only the Python standard library and a C compiler are required. The verification
-enumerates every \(\binom{25}{6}=177100\) subset twice, checks committed artifact
+These unit tests are a preliminary check; passing them does not replay the
+Lean proof or establish the theorem. Complete the clean audit documented in
+the reproduction guide for that verification.
+
+## Historical research verification
+
+The public snapshot intentionally excludes historical experiments unrelated
+to E058. The retained default `make`/`make all`, `make test`, and `make verify`
+targets depend on omitted files such as `src/check_coloring.c` and
+`tests/test_pipeline.py`; the historical `repro/verify.sh` is also absent.
+The broader verification and certificate-reproduction commands described
+below belong to the original research workspace and are not supported entry
+points for this scoped snapshot.
+
+The historical certificate-verification environment used Python 3.12.3 and
+GCC 13.3.0 on 64-bit WSL2 Linux. Those checks required only the Python standard
+library and a C compiler; the complete E058 proof replay also requires the
+pinned Lean/mathlib environment in the reproduction guide. The historical
+verification enumerates every \(\binom{25}{6}=177100\) subset twice, checks committed artifact
 hashes, regenerates the affine construction, audits 23,751 degree profiles, and runs
 positive, negative, malformed-input, scope-lock, and damaged-certificate tests.
 It also regenerates the 18,630-clause equality CNF, the E006/E008/E011/E012
